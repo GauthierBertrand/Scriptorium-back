@@ -6,6 +6,7 @@ use App\Repository\WayAbilityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=WayAbilityRepository::class)
@@ -21,31 +22,37 @@ class WayAbility
 
     /**
      * @ORM\Column(type="string", length=64)
+     * @Groups({"ways_get_collection"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"ways_get_collection"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"ways_get_collection"})
      */
     private $limited;
 
     /**
      * @ORM\Column(type="json", nullable=true)
+     * @Groups({"ways_get_collection"})
      */
     private $bonus = [];
 
     /**
      * @ORM\Column(type="array", nullable=true)
+     * @Groups({"ways_get_collection"})
      */
     private $traits = [];
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"ways_get_collection"})
      */
     private $cost;
 
@@ -62,6 +69,7 @@ class WayAbility
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"ways_get_collection"})
      */
     private $level;
 
