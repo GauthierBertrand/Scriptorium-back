@@ -28,10 +28,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotNull(
-     *  message = "Ne peut pas être null"
+     *  message = "Le champ email ne peut pas être null."
+     * )
+     * @Assert\NotBlank(
+     *  message = "Le champ email ne peut pas être vide."
      * )
      * @Assert\Email(
-     *  message = "The email '{value}' is not valid."
+     *  message = "L'email {{ value }} n'est pas un email valide."
      * )
      */
     private $email;
@@ -45,16 +48,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      * @ORM\Column(type="string")
      * @Assert\NotNull(
-     *  message = "Ne peut pas être null"
+     *  message = "Le champ password ne peut pas être null."
      * )
      * @Assert\NotBlank(
-     *  message = "Ne peut pas être vide"
+     *  message = "Le champ password ne peut pas être vide."
      * )
      * @Assert\Length(
      *  min = 2,
      *  max = 10,
-     *  minMessage = "Minimum {value}",
-     *  maxMessage = "Maximum {value}"
+     *  minMessage = "Le password doit être de '{{ limit }}' caractères minimum.",
+     *  maxMessage = "Le password doit être de '{{ limit }}' caractères maximum."
      * )
      */
     private $password;
@@ -62,13 +65,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="string", length=64)
      * @Assert\NotNull(
-     *  message = "Ne peut pas être null"
+     *  message = "Le champ pseudo ne peut pas être null."
      * )
      * @Assert\Length(
      *  min = 2,
      *  max = 4,
-     *  minMessage = "Doit être de {value} caractères minimum",
-     *  maxMessage = "Doit être de max {value} caractères"
+     *  minMessage = "Le champ pseudo doit être de '{{ limit }}' caractères minimum.",
+     *  maxMessage = "Le champ pseudo doit être de '{{ limit }}' caractères maximum."
      * )
      */
     private $pseudo;
