@@ -6,6 +6,8 @@ use App\Repository\RacialAbilityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 /**
  * @ORM\Entity(repositoryClass=RacialAbilityRepository::class)
@@ -21,21 +23,25 @@ class RacialAbility
 
     /**
      * @ORM\Column(type="string", length=64)
+     * @Groups({"races_get_collection"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"races_get_collection"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="json", nullable=true)
+     * @Groups({"races_get_collection"})
      */
     private $bonus = [];
 
     /**
      * @ORM\Column(type="array", nullable=true)
+     * @Groups({"races_get_collection"})
      */
     private $traits = [];
 

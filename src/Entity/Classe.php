@@ -6,6 +6,8 @@ use App\Repository\ClasseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+//!Attention en V>6 il faut ignorer les propriétés. Ici on ne prend que ce dont on a besoin avec les group annotations
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ClasseRepository::class)
@@ -16,47 +18,56 @@ class Classe
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"classes_get_collection"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=64)
+     * @Groups({"classes_get_collection"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"classes_get_collection"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"classes_get_collection"})
      */
     private $picture;
 
     /**
      * @ORM\OneToMany(targetEntity=Sheet::class, mappedBy="classe")
+     * 
      */
     private $sheets;
 
 
     /**
      * @ORM\OneToMany(targetEntity=Way::class, mappedBy="classe")
+     * 
      */
     private $ways;
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"classes_get_collection"})
      */
     private $hit_die;
 
     /**
      * @ORM\OneToMany(targetEntity=ClasseEquipment::class, mappedBy="classe")
+     * @Groups({"classes_get_collection"})
      */
     private $classeEquipment;
 
     /**
      * @ORM\OneToMany(targetEntity=ClasseStat::class, mappedBy="classe")
+     * 
      */
     private $classeStats;
 

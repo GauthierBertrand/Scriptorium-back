@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ClasseStatRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ClasseStatRepository::class)
@@ -26,11 +27,13 @@ class ClasseStat
     /**
      * @ORM\ManyToOne(targetEntity=Stat::class, inversedBy="classeStats")
      * @ORM\JoinColumn(nullable=false)
+     * 
      */
     private $stat;
 
     /**
      * @ORM\Column(type="boolean")
+     * 
      */
     private $priority;
 

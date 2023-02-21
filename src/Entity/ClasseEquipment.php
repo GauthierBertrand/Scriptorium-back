@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ClasseEquipmentRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ClasseEquipmentRepository::class)
@@ -26,11 +27,13 @@ class ClasseEquipment
     /**
      * @ORM\ManyToOne(targetEntity=Equipment::class, inversedBy="classeEquipment")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"classes_get_collection"})
      */
     private $equipment;
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"classes_get_collection"})
      */
     private $number;
 

@@ -6,6 +6,7 @@ use App\Repository\WayRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=WayRepository::class)
@@ -16,11 +17,13 @@ class Way
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"ways_get_collection"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=64)
+     * @Groups({"ways_get_collection"})
      */
     private $name;
 
@@ -32,6 +35,7 @@ class Way
 
     /**
      * @ORM\OneToMany(targetEntity=WayAbility::class, mappedBy="way")
+     * @Groups({"ways_get_collection"})
      */
     private $wayAbilities;
 

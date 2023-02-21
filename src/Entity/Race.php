@@ -6,6 +6,8 @@ use App\Repository\RaceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 /**
  * @ORM\Entity(repositoryClass=RaceRepository::class)
@@ -21,41 +23,49 @@ class Race
 
     /**
      * @ORM\Column(type="string", length=64)
+     * @Groups({"races_get_collection"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"races_get_collection"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"races_get_collection"})
      */
     private $partiality;
 
     /**
      * @ORM\Column(type="json", nullable=true)
+     * @Groups({"races_get_collection"})
      */
     private $stats = [];
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"races_get_collection"})
      */
     private $picture_principal;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"races_get_collection"})
      */
     private $picture_male;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"races_get_collection"})
      */
     private $picture_female;
 
     /**
      * @ORM\OneToMany(targetEntity=RacialAbility::class, mappedBy="race")
+     * @Groups({"races_get_collection"})
      */
     private $racialAbilities;
 
