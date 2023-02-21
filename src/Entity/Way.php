@@ -24,6 +24,8 @@ class Way
     /**
      * @ORM\Column(type="string", length=64)
      * @Groups({"ways_get_collection"})
+     * @Groups({"sheets_get_collection"})
+     * @Groups({"sheet_get_item"})
      */
     private $name;
 
@@ -36,6 +38,8 @@ class Way
     /**
      * @ORM\OneToMany(targetEntity=WayAbility::class, mappedBy="way")
      * @Groups({"ways_get_collection"})
+     * 
+     * 
      */
     private $wayAbilities;
 

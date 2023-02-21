@@ -24,12 +24,16 @@ class RacialAbility
     /**
      * @ORM\Column(type="string", length=64)
      * @Groups({"races_get_collection"})
+     * @Groups({"sheets_get_collection"})
+     * @Groups({"sheet_get_item"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
      * @Groups({"races_get_collection"})
+     * @Groups({"sheets_get_collection"})
+     * @Groups({"sheet_get_item"})
      */
     private $description;
 

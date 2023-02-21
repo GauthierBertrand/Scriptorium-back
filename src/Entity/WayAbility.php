@@ -23,24 +23,29 @@ class WayAbility
     /**
      * @ORM\Column(type="string", length=64)
      * @Groups({"ways_get_collection"})
+     *@Groups({"sheets_get_collection"})
+     * @Groups({"sheet_get_item"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
      * @Groups({"ways_get_collection"})
+     * 
      */
     private $description;
 
     /**
      * @ORM\Column(type="boolean")
      * @Groups({"ways_get_collection"})
+     * 
      */
     private $limited;
 
     /**
      * @ORM\Column(type="json", nullable=true)
      * @Groups({"ways_get_collection"})
+     * 
      */
     private $bonus = [];
 
@@ -53,23 +58,28 @@ class WayAbility
     /**
      * @ORM\Column(type="integer")
      * @Groups({"ways_get_collection"})
+     * 
      */
     private $cost;
 
     /**
      * @ORM\ManyToMany(targetEntity=Sheet::class, mappedBy="way_abilities")
+     * 
      */
     private $sheets;
 
     /**
      * @ORM\ManyToOne(targetEntity=Way::class, inversedBy="wayAbilities")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"sheets_get_collection"})
+     * @Groups({"sheet_get_item"})
      */
     private $way;
 
     /**
      * @ORM\Column(type="integer")
      * @Groups({"ways_get_collection"})
+     * 
      */
     private $level;
 
