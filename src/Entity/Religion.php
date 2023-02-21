@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ReligionRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ReligionRepository::class)
@@ -19,16 +20,19 @@ class Religion
 
     /**
      * @ORM\Column(type="string", length=64)
+     * @Groups({"religions_get_collection"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"religions_get_collection"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"religions_get_collection"})
      */
     private $alignment;
 
