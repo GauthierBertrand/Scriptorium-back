@@ -24,7 +24,7 @@ class ChroniqueController extends AbstractController
      */
     public function getClasses(ClasseRepository $classeRepository): JsonResponse
     {
-        $classes = $classeRepository->findAll();
+        $classes = $classeRepository->getClasses();
         return $this->json(
             ['classes' => $classes],
             Response::HTTP_OK,

@@ -39,6 +39,31 @@ class ClasseRepository extends ServiceEntityRepository
         }
     }
 
+    public function getClasses() 
+    {
+        $manager = $this->getEntityManager();
+
+        $query = $manager->createQuery(
+            "SELECT classe.id, classe.name, classe.description, classe.picture, classe.hit_die, classe.stats FROM App\Entity\Classe classe"
+        );
+
+        $result = $query->getResult();
+
+        $classes = [];
+
+        foreach($result as $classe) {
+            $query = $manager->createQuery(
+                "SELECT equipment.name, equipment.description FROM App\Entity\Equipment equipment JOIN equipment.classeEquipment cE JOIN cE.classe classe WHERE classe.id = :classeId"
+            );
+            $query->setParameter("classeId", $classe["id"]);
+            $classe["equipments"] = $query->getResult();
+
+            $classes[] = $classe; 
+        }
+
+        return $classes;
+    }
+
 //    /**
 //     * @return Classe[] Returns an array of Classe objects
 //     */
