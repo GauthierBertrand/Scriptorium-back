@@ -61,9 +61,6 @@ class AppFixtures extends Fixture
             }
         }
 
-
-        $stats = [];
-
         foreach($this->datas->stats as $stat) {
             $statEntity = new Stat();
 
@@ -71,8 +68,6 @@ class AppFixtures extends Fixture
             ->setDescription($stat[1]);
 
             $manager->persist($statEntity);
-            
-            $stats[$stat[0]] = $statEntity;
         }
 
         $classes = [];
@@ -83,20 +78,14 @@ class AppFixtures extends Fixture
             $classeEntity->setName($classe[0])
             ->setDescription($classe[1])
             ->setHitDie($classe[2])
-            ->setPicture($classe[3]);
+            ->setPicture($classe[3])
+            ->setStats($classe[4]);
 
             $manager->persist($classeEntity);
 
             $classes[] = $classeEntity;
 
-            foreach($classe[4] as $statClasse) {
-                $classeStatEntity = new ClasseStat();
-
-                $classeStatEntity->setClasse($classeEntity)
-                ->setStat($stats[$statClasse]);
-
-                $manager->persist($classeStatEntity);
-            }
+            
 
             foreach($this->datas->ways[$classeEntity->getName()] as $wayname => $abilities) {
                 $wayEntity = new Way();
