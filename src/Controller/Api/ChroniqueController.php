@@ -2,10 +2,11 @@
 
 namespace App\Controller\Api;
 
-use App\Repository\ClasseRepository;
+use App\Repository\WayRepository;
 use App\Repository\RaceRepository;
 use App\Repository\StatRepository;
-use App\Repository\WayRepository;
+use App\Repository\ClasseRepository;
+use App\Repository\ReligionRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,7 +18,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
  */
 class ChroniqueController extends AbstractController
 {
-    //!A revoir avec ajout d'un champ stats 
     /**
      * @Route("/classes", name="classes_get_collection", methods={"GET"})
      * Get all classes for the classes choice page
@@ -64,5 +64,34 @@ class ChroniqueController extends AbstractController
         );
     }
 
+    /**
+     * @Route("/stats", name="stats_get_collection", methods={"GET"})
+     * Get all stats for the stats selection page
+     */
+    public function getStats(StatRepository $statRepository)
+    {
+        $stats = $statRepository->findAll();
+        return $this->json(
+            ['stats'=>$stats],
+            Response::HTTP_OK,
+            [],
+            ['groups'=>'stats_get_collection']
+        );
+    }
+
+    /**
+     * @Route("/religions", name="religions_get_collection", methods={"GET"})
+     * Get all religions for the character information page
+     */
+    public function getReligions(ReligionRepository $religionRepository)
+    {
+        $religions = $religionRepository->findAll();
+        return $this->json(
+            ['religions'=>$religions],
+            Response::HTTP_OK,
+            [],
+            ['groups'=>'religions_get_collection']
+        );
+    }
 
 }
