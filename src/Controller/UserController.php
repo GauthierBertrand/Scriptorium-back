@@ -22,6 +22,14 @@ class UserController extends AbstractController
         // Decode de content Request and return an array with keys
         $passwords = json_decode($request->getContent(), true);
 
+        if (isset($passwords["current_password"]) OR isset($passwords["new_password"])) {
+            return $this->json(
+                ['error' => "Vous devez indiqué un champ 'current_password' et un champ 'new_password' dans votre requête."],
+                400,
+                []
+            );
+        }
+
         // Recover the user associate to token
         $token = $tokenStorage->getToken();
         $user = $token->getUser();
