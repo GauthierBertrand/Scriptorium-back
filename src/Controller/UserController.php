@@ -25,16 +25,24 @@ class UserController extends AbstractController
         // Recover the user associate to token
         $token = $tokenStorage->getToken();
         $user = $token->getUser();
-        
+
         // Verify if the plaintext password given by request match with the user's password
         // ! Error doesn't exist, don't worry for this !
-        if (!$passwordHasher->isPasswordValid($user, $passwords["current_password"])) {
-            $user->setPassword($passwords["current_password"]);
+        if ($passwordHasher->isPasswordValid($user, $passwords["current_password"])) {
+            $user->setPassword($passwords["new_password"]);
             
-            $error = $validator->validate($user);
+            $errors = $validator->validate($user);
 
-            if (count($error) > 0) {
-                return $this->json("Invalid format");
+            if (count($errors) > 0) {
+                // dd($error[0]);
+                $error = $errors[0];
+                $errorJson[$error->getPropertyPath()] = $error->getMessage();
+
+                return $this->json(
+                    ["error" => $errorJson],
+                    400,
+                    []
+                );
             }
 
             // ? On hash de nouveau le password après la verification du mot de passe au clair pour utiliser sans probleme la methode isPasswordValid
@@ -42,10 +50,17 @@ class UserController extends AbstractController
 
             $manager->flush();
 
-            return $this->json("Password verified");
+            return $this->json(
+                ["confirmation" => "Password changed"],
+                201,
+                []);
         }
 
-        return $this->json("Invalid Password");
+        return $this->json(
+            ["invalidation" => "Invalid Password"],
+            403,
+            []    
+        );
 
     }
 }
