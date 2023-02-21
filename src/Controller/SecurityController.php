@@ -25,20 +25,31 @@ class SecurityController extends AbstractController
 
         $user = $serialiser->deserialize($userDatas, User::class, "json");
 
-        $error = $validator->validate($user);
+        $errors = $validator->validate($user);
 
-        if (count($error) > 0) {
-            return $this->json("Bad");
+        if (count($errors) > 0) {
+            $errorsJson = [];
+
+            foreach($errors as $error) {
+                $errorsJson[$error->getPropertyPath()] = $error->getMessage();
+            }
+
+            return $this->json(
+                ["errors" => $errorsJson],
+                400,
+                []
+            );
         }
-        // dd($user);
+
         $user->setPassword($passwordHasher->hashPassword($user, $user->getPassword()));
-        // dd($user);
         
         $manager->persist($user);
         $manager->flush();
 
-        return $this->json([
-            "good"
-        ]);
+        return $this->json(
+            ["confirmation" => "Le compte à bien été créé."],
+            201,
+            []
+        );
     }
 }
