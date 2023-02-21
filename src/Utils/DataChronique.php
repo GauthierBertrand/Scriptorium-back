@@ -3928,8 +3928,12 @@ class DataChronique {
                 8,
                 "",
                 [
-                    "Dextérité",
-                    "Constitution"
+                    "Dextérité" => true,
+                    "Constitution" => true,
+                    "Force" => false,
+                    "Charisme" => false,
+                    "Sagesse" => false,
+                    "Intelligence" => false
                 ]
             ],
             [
@@ -3938,8 +3942,12 @@ class DataChronique {
                 12,
                 "",
                 [
-                    "Force",
-                    "Constitution"
+                    "Dextérité" => false,
+                    "Constitution" => true,
+                    "Force" => true,
+                    "Charisme" => false,
+                    "Sagesse" => false,
+                    "Intelligence" => false
                 ]
             ],
             [
@@ -3948,8 +3956,12 @@ class DataChronique {
                 6,
                 "",
                 [
-                    "Charisme",
-                    "Dextérité"
+                    "Dextérité" => true,
+                    "Constitution" => false,
+                    "Force" => false,
+                    "Charisme" => true,
+                    "Sagesse" => false,
+                    "Intelligence" => false
                 ]
             ],
             [
@@ -3958,8 +3970,12 @@ class DataChronique {
                 10,
                 "",
                 [
-                    "Force",
-                    "Charisme"
+                    "Dextérité" => false,
+                    "Constitution" => false,
+                    "Force" => true,
+                    "Charisme" => true,
+                    "Sagesse" => false,
+                    "Intelligence" => false
                 ]
             ],
             [
@@ -3968,8 +3984,12 @@ class DataChronique {
                 8,
                 "",
                 [
-                    "Sagesse",
-                    "Constitution"
+                    "Dextérité" => false,
+                    "Constitution" => true,
+                    "Force" => false,
+                    "Charisme" => false,
+                    "Sagesse" => true,
+                    "Intelligence" => false
                 ]
             ],
             [
@@ -3978,7 +3998,12 @@ class DataChronique {
                 4,
                 "",
                 [
-                    "Charisme"
+                    "Dextérité" => false,
+                    "Constitution" => false,
+                    "Force" => false,
+                    "Charisme" => true,
+                    "Sagesse" => false,
+                    "Intelligence" => false
                 ]
             ],
             [
@@ -3987,8 +4012,12 @@ class DataChronique {
                 6,
                 "",
                 [
-                    "Intelligence",
-                    "Constitution"
+                    "Dextérité" => false,
+                    "Constitution" => true,
+                    "Force" => false,
+                    "Charisme" => false,
+                    "Sagesse" => false,
+                    "Intelligence" => true
                 ]
             ],
             [
@@ -3997,8 +4026,12 @@ class DataChronique {
                 10,
                 "",
                 [
-                    "Force",
-                    "Constitution"
+                    "Dextérité" => false,
+                    "Constitution" => true,
+                    "Force" => true,
+                    "Charisme" => false,
+                    "Sagesse" => false,
+                    "Intelligence" => false
                 ]
             ],
             [
@@ -4007,7 +4040,12 @@ class DataChronique {
                 4,
                 "",
                 [
-                    "Intelligence"
+                    "Dextérité" => false,
+                    "Constitution" => false,
+                    "Force" => false,
+                    "Charisme" => false,
+                    "Sagesse" => false,
+                    "Intelligence" => true
                 ]
             ],
             [
@@ -4016,8 +4054,12 @@ class DataChronique {
                 8,
                 "",
                 [
-                    "Sagesse",
-                    "Dextérité"
+                    "Dextérité" => true,
+                    "Constitution" => false,
+                    "Force" => false,
+                    "Charisme" => false,
+                    "Sagesse" => true,
+                    "Intelligence" => false
                 ]
             ],
             [
@@ -4026,7 +4068,12 @@ class DataChronique {
                 4,
                 "",
                 [
-                    "Intelligence"
+                    "Dextérité" => false,
+                    "Constitution" => false,
+                    "Force" => false,
+                    "Charisme" => false,
+                    "Sagesse" => false,
+                    "Intelligence" => true
                 ]
             ],
             [
@@ -4035,8 +4082,12 @@ class DataChronique {
                 8,
                 "",
                 [
-                    "Sagesse",
-                    "Force"
+                    "Dextérité" => false,
+                    "Constitution" => false,
+                    "Force" => true,
+                    "Charisme" => false,
+                    "Sagesse" => true,
+                    "Intelligence" => false
                 ]
             ],
             [
@@ -4045,8 +4096,12 @@ class DataChronique {
                 8,
                 "",
                 [
-                    "Dextérité",
-                    "Sagesse"
+                    "Dextérité" => true,
+                    "Constitution" => false,
+                    "Force" => false,
+                    "Charisme" => false,
+                    "Sagesse" => true,
+                    "Intelligence" => false
                 ]
             ],
             [
@@ -4055,8 +4110,12 @@ class DataChronique {
                 6,
                 "",
                 [
-                    "Dextérité",
-                    "Intelligence"
+                    "Dextérité" => true,
+                    "Constitution" => false,
+                    "Force" => false,
+                    "Charisme" => false,
+                    "Sagesse" => false,
+                    "Intelligence" => true
                 ]
             ]
         ];
