@@ -8,9 +8,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @UniqueEntity("email")
  */
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -23,6 +27,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @Assert\NotNull(
+     *  message = "Ne peut pas être null"
+     * )
+     * @Assert\Email(
+     *  message = "The email '{value}' is not valid."
+     * )
      */
     private $email;
 
@@ -34,11 +44,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Assert\NotNull(
+     *  message = "Ne peut pas être null"
+     * )
+     * @Assert\NotBlank(
+     *  message = "Ne peut pas être vide"
+     * )
+     * @Assert\Length(
+     *  min = 2,
+     *  max = 10,
+     *  minMessage = "Minimum {value}",
+     *  maxMessage = "Maximum {value}"
+     * )
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=64)
+     * @Assert\NotNull(
+     *  message = "Ne peut pas être null"
+     * )
+     * @Assert\Length(
+     *  min = 2,
+     *  max = 4,
+     *  minMessage = "Doit être de {value} caractères minimum",
+     *  maxMessage = "Doit être de max {value} caractères"
+     * )
      */
     private $pseudo;
 
