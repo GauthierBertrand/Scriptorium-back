@@ -11,11 +11,14 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @Route("/api/user")
+ */
 class UserController extends AbstractController
 {
     /**
      * Permet la modification du mot de passe d'un utilisateur recuperé via son token JWT
-     * @Route("/api/user/password", name="app_user_modify_password", methods="PATCH")
+     * @Route("/password", name="app_user_modify_password", methods="PATCH")
      */
     public function modifyPassword(Request $request, TokenStorageInterface $tokenStorage, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator, EntityManagerInterface $manager): JsonResponse
     {
@@ -69,6 +72,24 @@ class UserController extends AbstractController
             403,
             []    
         );
+    }
 
+    /**
+     * Permet la suppression d'un utilisateur authentifié via son token JWT
+     * @Route("/delete", name="app_user_delete", methods="DELETE")
+     */
+    public function deleteUser(TokenStorageInterface $tokenStorage, EntityManagerInterface $manager): JsonResponse 
+    {
+        $token = $tokenStorage->getToken();
+        $user = $token->getUser();
+
+        $manager->remove($user);
+        $manager->flush();
+        
+        return $this->json(
+            ["confirmation" => "User removed"],
+            200,
+            []
+        );
     }
 }
