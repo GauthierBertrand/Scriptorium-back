@@ -39,7 +39,7 @@ class ClasseRepository extends ServiceEntityRepository
         }
     }
 
-    public function getClasses() 
+    public function getClassesAndEquipments() 
     {
         $manager = $this->getEntityManager();
 
