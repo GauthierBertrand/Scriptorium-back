@@ -22,12 +22,15 @@ class PdfController extends AbstractController
         $jsonContent = $request->getContent();
         $PdfContent = $serializer->deserialize($jsonContent, Sheet::class, "json");
 
+        //On stock le template twig avec le contenu de Request dans $html
         $html = $this->render('api/pdf/fiche.html.twig', [
             'pdfContent' => $PdfContent,
         ]);
 
+        // On envoie le template twig à la methode de DomPdf dans le pdfService
         $pdf->showPdf($html);
 
+        //On retourne une confirmation en json
         return $this->json(
             ['confirmation' => 'pdf generé'],
             Response::HTTP_CREATED,
