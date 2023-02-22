@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -39,14 +40,15 @@ class SheetController extends AbstractController
     }
     
     /**
-     * @Route("/characters/users/{id<\d+>}", name="sheets_get_collection", methods={"GET"})
+     * @Route("/characters/users", name="sheets_get_collection", methods={"GET"})
      * Get all sheets by user id
      */
-    public function getUserSheets(User $user=null,SheetRepository $sheetRepository)
+    public function getUserSheets(SheetRepository $sheetRepository, TokenStorageInterface $tokenInterface): JsonResponse
     {
-        
+        $token = $tokenInterface->getToken();
+        $user = $token->getUser();
         $sheets = $sheetRepository->findBy(['user'=>$user]);
-        if ($sheets === null){
+        if (empty($sheets)){
             return $this->json(['message'=>'Aucune fiche sauvegardée.'], Response::HTTP_NOT_FOUND);
         }
         return $this->json(
@@ -61,12 +63,15 @@ class SheetController extends AbstractController
      * @Route("/characters", name="post_sheets_item", methods={"POST"})
      * Post a sheet in database
      */
-    public function createSheet(Request $request, SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager)
+    public function createSheet(Request $request, SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager, TokenStorageInterface $tokenInterface): JsonResponse
     {
+        $token=$tokenInterface->getToken();
+        $user=$token->getUser();
+
         $jsonContent = $request->getContent();
-        //dd($jsonContent);
-        $sheet = $serializer->deserialize($jsonContent,Sheet::class,'json');
         
+        $sheet = $serializer->deserialize($jsonContent,Sheet::class,'json');
+        $sheet->setUser($user);
         $errors = $validator->validate($sheet);
         $errorList=[];
         if(count($errors)>0){
