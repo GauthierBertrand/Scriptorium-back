@@ -24,6 +24,8 @@ class Classe
     /**
      * @ORM\Column(type="string", length=64)
      * @Groups({"classes_get_collection"})
+     * @Groups({"sheets_get_collection"})
+     * @Groups({"sheet_get_item"})
      */
     private $name;
 
