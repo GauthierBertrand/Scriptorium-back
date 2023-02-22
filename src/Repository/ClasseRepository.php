@@ -53,7 +53,7 @@ class ClasseRepository extends ServiceEntityRepository
 
         foreach($result as $classe) {
             $query = $manager->createQuery(
-                "SELECT equipment.name, equipment.description FROM App\Entity\Equipment equipment JOIN equipment.classeEquipment cE JOIN cE.classe classe WHERE classe.id = :classeId"
+                "SELECT equipment.name, equipment.description, cE.number FROM App\Entity\Equipment equipment JOIN equipment.classeEquipment cE JOIN cE.classe classe WHERE classe.id = :classeId"
             );
             $query->setParameter("classeId", $classe["id"]);
             $classe["equipments"] = $query->getResult();

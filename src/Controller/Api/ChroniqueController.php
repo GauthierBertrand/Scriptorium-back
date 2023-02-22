@@ -56,7 +56,8 @@ class ChroniqueController extends AbstractController
      */
     public function getWays(WayRepository $wayRepository)
     {
-        $ways = $wayRepository->findAll();
+        $ways = $wayRepository->getWaysAndWayAbilities();
+        // $ways = $wayRepository->findAll();
         return $this->json(
             ['ways'=>$ways],
             Response::HTTP_OK,
