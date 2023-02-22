@@ -27,10 +27,14 @@ class SheetController extends AbstractController
      */
     public function getSheetItem(Sheet $sheet=null): JsonResponse
     {
+
+        // dd(in_array("GET_SHEET", ["GET_SHEET", "POST_EDIT"]));
+
         if ($sheet === null) {
 
             return $this->json(['message' => 'Fiche de personnage non trouvée.'], Response::HTTP_NOT_FOUND);
         }
+        $this->denyAccessUnlessGranted('GET_SHEET',$sheet);
         return $this->json(
             ['sheet'=>$sheet],
             Response::HTTP_OK,
@@ -72,6 +76,7 @@ class SheetController extends AbstractController
         
         $sheet = $serializer->deserialize($jsonContent,Sheet::class,'json');
         $sheet->setUser($user);
+        //dd($sheet);
         $errors = $validator->validate($sheet);
         $errorList=[];
         if(count($errors)>0){
