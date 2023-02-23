@@ -135,4 +135,31 @@ class SheetController extends AbstractController
             ['groups' => 'sheet_get_item']
         );
     }
+
+    /**
+     * Delete a sheet
+     * @Route("/characters/{id<\d+>}", name="sheets_delete_item", methods={"DELETE"})
+     */
+    public function deleteSheet(Sheet $sheet=null, Request $request, SerializerInterface $serializer,EntityManagerInterface $entityManager): JsonResponse
+    {
+        if (empty($sheet)) {
+            return $this->json(
+                ['message' => 'Fiche non trouvée']
+                , Response::HTTP_NOT_FOUND,
+                []
+            ); 
+        }
+
+        $this->denyAccessUnlessGranted('POST_EDIT',$sheet);
+
+        $entityManager->remove($sheet);
+        $entityManager->flush();
+
+        return $this->json(
+            ['message' => 'La fiche a bien été supprimée'],
+            Response::HTTP_OK,
+            [],
+            ['groups' => 'sheet_get_item']
+        );
+    }
 }
