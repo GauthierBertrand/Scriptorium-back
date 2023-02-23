@@ -39,6 +39,19 @@ class RaceRepository extends ServiceEntityRepository
         }
     }
 
+    public function getRacesAndRacialAbilities() 
+    {
+        $manager = $this->getEntityManager();
+
+        $query = $manager->createQuery(
+            "SELECT race, abilities FROM App\Entity\Race race JOIN race.racialAbilities abilities"
+        );
+
+        $result = $query->getResult();
+
+        return $result;
+    }
+
 //    /**
 //     * @return Race[] Returns an array of Race objects
 //     */

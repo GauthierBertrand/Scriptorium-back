@@ -24,7 +24,7 @@ class ChroniqueController extends AbstractController
      */
     public function getClasses(ClasseRepository $classeRepository): JsonResponse
     {
-        $classes = $classeRepository->findAll();
+        $classes = $classeRepository->getClassesAndEquipments();
         return $this->json(
             ['classes' => $classes],
             Response::HTTP_OK,
@@ -39,7 +39,8 @@ class ChroniqueController extends AbstractController
      */
     public function getRaces(RaceRepository $raceRepository): JsonResponse
     {
-        $races = $raceRepository->findAll();
+        $races = $raceRepository->getRacesAndRacialAbilities();
+        // $races = $raceRepository->findAll();
         return $this->json(
             ['races' => $races],
             Response::HTTP_OK,
@@ -55,7 +56,8 @@ class ChroniqueController extends AbstractController
      */
     public function getWays(WayRepository $wayRepository)
     {
-        $ways = $wayRepository->findAll();
+        $ways = $wayRepository->getWaysAndWayAbilities();
+        // $ways = $wayRepository->findAll();
         return $this->json(
             ['ways'=>$ways],
             Response::HTTP_OK,
