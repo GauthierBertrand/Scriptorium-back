@@ -10,10 +10,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * @Route("/api", name="app_api_")
@@ -27,13 +28,10 @@ class SheetController extends AbstractController
      */
     public function getSheetItem(Sheet $sheet=null): JsonResponse
     {
-
-        // dd(in_array("GET_SHEET", ["GET_SHEET", "POST_EDIT"]));
-
-        if ($sheet === null) {
-
+        if (empty($sheet)) {
             return $this->json(['message' => 'Fiche de personnage non trouvée.'], Response::HTTP_NOT_FOUND);
         }
+
         $this->denyAccessUnlessGranted('GET_SHEET',$sheet);
         return $this->json(
             ['sheet'=>$sheet],
@@ -52,9 +50,15 @@ class SheetController extends AbstractController
         $token = $tokenInterface->getToken();
         $user = $token->getUser();
         $sheets = $sheetRepository->findBy(['user'=>$user]);
+
         if (empty($sheets)){
-            return $this->json(['message'=>'Aucune fiche sauvegardée.'], Response::HTTP_NOT_FOUND);
+            return $this->json(
+                ['message'=>'Aucune fiche sauvegardée.']
+                ,Response::HTTP_NOT_FOUND,
+                []
+            );
         }
+
         return $this->json(
             ['sheets'=>$sheets],
             Response::HTTP_OK,
@@ -76,12 +80,13 @@ class SheetController extends AbstractController
         
         $sheet = $serializer->deserialize($jsonContent,Sheet::class,'json');
         $sheet->setUser($user);
-        //dd($sheet);
+        
         $errors = $validator->validate($sheet);
-        $errorList=[];
+        $errorList = [];
+
         if(count($errors)>0){
             foreach ($errors as $error){
-                $errorList[$error->getPropertyPath()][]=$error->getMessage();
+                $errorList[$error->getPropertyPath()][] = $error->getMessage();
             }
             return $this->json($errorList, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
@@ -96,7 +101,6 @@ class SheetController extends AbstractController
         );   
     }
 
-    //! methode Edit fonctionnelle mais "access denied" dès qu'on décommente le voter
     /**
      * Update character sheet
      * @Route("/characters/{id<\d+>}", name="sheets_patch_item", methods={"PATCH"})
@@ -104,9 +108,14 @@ class SheetController extends AbstractController
     public function patch(Sheet $sheet = null, Request $request, SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager): JsonResponse
     {
         if (empty($sheet)) {
-            return $this->json(['message' => 'Fiche non trouvée'], Response::HTTP_NOT_FOUND);
+            return $this->json(
+                ['message' => 'Fiche non trouvée']
+                , Response::HTTP_NOT_FOUND,
+                []
+            ); 
         }
-        //Voter à mettre en place après merge (POST_EDIT) $this->denyAccessUnlessGranted('POST_EDIT',$sheet);
+
+        $this->denyAccessUnlessGranted('POST_EDIT',$sheet);
         $jsonContent = $request->getContent();
 
         $sheet = $serializer->deserialize($jsonContent, Sheet::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $sheet]);
@@ -117,7 +126,6 @@ class SheetController extends AbstractController
             return $this->json($errors, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $entityManager->persist($sheet);
         $entityManager->flush();
 
         return $this->json(

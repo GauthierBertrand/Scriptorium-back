@@ -3,7 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Sheet;
-use App\Service\PdfService;
+use App\Utils\PdfService;
 use App\Repository\SheetRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

@@ -28,8 +28,7 @@ class ChroniqueController extends AbstractController
         return $this->json(
             ['classes' => $classes],
             Response::HTTP_OK,
-            [],
-            ['groups'=>'classes_get_collection']
+            []
         );
     }
 

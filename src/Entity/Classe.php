@@ -17,13 +17,11 @@ class Classe
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"classes_get_collection"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=64)
-     * @Groups({"classes_get_collection"})
      * @Groups({"sheets_get_collection"})
      * @Groups({"sheet_get_item"})
      */
@@ -31,13 +29,11 @@ class Classe
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"classes_get_collection"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"classes_get_collection"})
      */
     private $picture;
 
@@ -54,19 +50,16 @@ class Classe
 
     /**
      * @ORM\Column(type="integer")
-     * @Groups({"classes_get_collection"})
      */
     private $hit_die;
 
     /**
      * @ORM\OneToMany(targetEntity=ClasseEquipment::class, mappedBy="classe")
-     * @Groups({"classes_get_collection"})
      */
     private $classeEquipment;
 
     /**
      * @ORM\Column(type="json")
-     * @Groups({"classes_get_collection"})
      */
     private $stats = [];
 
