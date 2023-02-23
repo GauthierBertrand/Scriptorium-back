@@ -92,8 +92,39 @@ class SheetController extends AbstractController
         return $this->json(
             ['confirmation'=>'Fiche bien ajoutée'],
             Response::HTTP_CREATED,
-            [],
+            []
         );   
     }
 
+    //! methode Edit fonctionnelle mais "access denied" dès qu'on décommente le voter
+    /**
+     * Update character sheet
+     * @Route("/characters/{id<\d+>}", name="sheets_patch_item", methods={"PATCH"})
+     */
+    public function patch(Sheet $sheet = null, Request $request, SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager): JsonResponse
+    {
+        if (empty($sheet)) {
+            return $this->json(['message' => 'Fiche non trouvée'], Response::HTTP_NOT_FOUND);
+        }
+        //Voter à mettre en place après merge (POST_EDIT) $this->denyAccessUnlessGranted('POST_EDIT',$sheet);
+        $jsonContent = $request->getContent();
+
+        $sheet = $serializer->deserialize($jsonContent, Sheet::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $sheet]);
+
+        $errors = $validator->validate($sheet);
+
+        if (count($errors) > 0) {
+            return $this->json($errors, Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $entityManager->persist($sheet);
+        $entityManager->flush();
+
+        return $this->json(
+            ['sheet' => $sheet],
+            Response::HTTP_OK,
+            [],
+            ['groups' => 'sheet_get_item']
+        );
+    }
 }

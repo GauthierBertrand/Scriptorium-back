@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Fiche personnage
+{% endblock %}
+
+{% block body %}
+	<h1>Fiche de personnage {{pdfContent.characterName}}</h1>
+
+	<div class="section">
+		<div class="portrait"></div>
+		<div class="column">
+			<div class="name">Nom du personnage</div>
+			<table>
+				<tr>
+					<th>Niveau</th>
+					<td>1</td>
+				</tr>
+				<tr>
+					<th>Classe</th>
+					<td>Arquebusier</td>
+				</tr>
+				<tr>
+					<th>Race</th>
+					<td>Demi-elfe</td>
+				</tr>
+			</table>
+		</div>
+		<div class="clear"></div>
+	</div>
+
+	<div class="section">
+		<div class="column">
+			<div class="section-title">Caractéristiques</div>
+			<table>
+				<tr>
+					<th>Force</th>
+					<td class="attribute">18</td>
+				</tr>
+				<tr>
+					<th>Dextérité</th>
+					<td class="attribute">14</td>
+				</tr>
+				<tr>
+					<th>Constitution</th>
+					<td class="attribute">16</td>
+				</tr>
+				<tr>
+					<th>Intelligence</th>
+					<td class="attribute">8</td>
+				</tr>
+				<tr>
+					<th>Sagesse</th>
+					<td class="attribute">12</td>
+				</tr>
+				<tr>
+					<th>Charisme</th>
+					<td class="attribute">10</td>
+				</tr>
+			</table>
+		</div>
+		<div class="column">
+			<div class="section-title">Capacités</div>
+			<table>
+				<tr>
+					<th>Instinct de survie</th>
+				{% endblock %}
+
