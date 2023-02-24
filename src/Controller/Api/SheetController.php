@@ -2,7 +2,6 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\User;
 use App\Entity\Sheet;
 use App\Repository\SheetRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -72,14 +71,23 @@ class SheetController extends AbstractController
      * @Route("/characters", name="post_sheets_item", methods={"POST"})
      * Post a sheet in database
      */
-    public function createSheet(Request $request, SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager, TokenStorageInterface $tokenInterface): JsonResponse
+    public function createSheet(SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager, TokenStorageInterface $tokenInterface): JsonResponse
     {
         $token = $tokenInterface->getToken();
         $user = $token->getUser();
 
         // On récupère le contenu du cache généré via la route api/generator grace à la clé pdf_content
-        $cache = new FilesystemAdapter;
+        $cache = new FilesystemAdapter;       
         $dataSheet = $cache->getItem('pdf_content');
+
+        // On verifie si le cache n'est pas vide (on renvoie une erreur 400 s'il est vide)
+        if (!$dataSheet->isHit()) {
+            return $this->json(
+                ['erreur' => 'Le cache est vide'],
+                Response::HTTP_BAD_REQUEST,
+                []
+            );
+        }
 
         // ->get('value') pour recuperer la valeur du cache
         $jsonContent = $dataSheet->get('value');
