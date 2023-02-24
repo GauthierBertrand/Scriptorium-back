@@ -1,27 +1,28 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Fiche personnage
-{% endblock %}
+{% block title %}Chroniques oubliées{% endblock %}
 
 {% block body %}
-	<h1>Fiche de personnage {{pdfContent.characterName}}</h1>
+	<h1>Chroniques oubliées</h1>
 
 	<div class="section">
-		<div class="portrait"></div>
+		<img src="{{pdfContent.picture}}" class="portrait"></img>
 		<div class="column">
-			<div class="name">Nom du personnage</div>
+					<div class="name">Nom du personnage</div>
+
+			<div class="name">{{pdfContent.characterName}}</div>
 			<table>
 				<tr>
 					<th>Niveau</th>
-					<td>1</td>
+					<td>{{pdfContent.level}}</td>
 				</tr>
 				<tr>
 					<th>Classe</th>
-					<td>Arquebusier</td>
+					<td>{{pdfContent.classe.name}}</td>
 				</tr>
 				<tr>
 					<th>Race</th>
-					<td>Demi-elfe</td>
+					<td>{{pdfContent.raceName}}</td>
 				</tr>
 			</table>
 		</div>
@@ -34,34 +35,37 @@
 			<table>
 				<tr>
 					<th>Force</th>
-					<td class="attribute">18</td>
+					<td class="attribute">{{pdfContent.stats.Force}}</td>
 				</tr>
 				<tr>
 					<th>Dextérité</th>
-					<td class="attribute">14</td>
+					<td class="attribute">{{pdfContent.stats.Dextérité}}</td>
 				</tr>
 				<tr>
 					<th>Constitution</th>
-					<td class="attribute">16</td>
+					<td class="attribute">{{pdfContent.stats.Constitution}}</td>
 				</tr>
 				<tr>
 					<th>Intelligence</th>
-					<td class="attribute">8</td>
+					<td class="attribute">{{pdfContent.stats.Intelligence}}</td>
 				</tr>
 				<tr>
 					<th>Sagesse</th>
-					<td class="attribute">12</td>
+					<td class="attribute">{{pdfContent.stats.Sagesse}}</td>
 				</tr>
 				<tr>
 					<th>Charisme</th>
-					<td class="attribute">10</td>
+					<td class="attribute">{{pdfContent.stats.Charisme}}</td>
 				</tr>
 			</table>
 		</div>
+
 		<div class="column">
 			<div class="section-title">Capacités</div>
 			<table>
 				<tr>
-					<th>Instinct de survie</th>
+								
+				<th> </th>
+					
 				{% endblock %}
 
