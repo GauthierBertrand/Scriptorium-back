@@ -55,8 +55,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *  message = "Le champ password ne peut pas être vide."
      * )
      * @Assert\Length(
-     *  min = 2,
-     *  max = 10,
+     *  min = 8,
+     *  max = 64,
      *  minMessage = "Le password doit être de '{{ limit }}' caractères minimum.",
      *  maxMessage = "Le password doit être de '{{ limit }}' caractères maximum."
      * )
@@ -69,8 +69,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *  message = "Le champ pseudo ne peut pas être null."
      * )
      * @Assert\Length(
-     *  min = 2,
-     *  max = 4,
+     *  min = 1,
+     *  max = 64,
      *  minMessage = "Le champ pseudo doit être de '{{ limit }}' caractères minimum.",
      *  maxMessage = "Le champ pseudo doit être de '{{ limit }}' caractères maximum."
      * )

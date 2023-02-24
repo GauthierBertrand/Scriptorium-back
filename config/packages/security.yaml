@@ -33,6 +33,15 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+            form_login:
+                login_path: login
+                check_path: login
+                always_use_default_target_path: true
+                default_target_path: admin
+            logout: 
+                path: logout
+                target: login
+                
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -47,6 +56,7 @@ security:
         - { path: ^/api/user, roles: ROLE_USER }
         - { path: ^/api/characters, roles: ROLE_USER }
         - { path: ^/inscription, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_ADMIN }
 
         # - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
         # - { path: ^/admin, roles: ROLE_ADMIN }
