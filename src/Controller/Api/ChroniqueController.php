@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * @Route("/api", name="app_api_")
@@ -24,6 +26,18 @@ class ChroniqueController extends AbstractController
      */
     public function getClasses(ClasseRepository $classeRepository): JsonResponse
     {
+        $cache = new FilesystemAdapter;
+        $dataSheet = $cache->getItem('pdf_content');
+
+        // ->get('value') pour recuperer la valeur du cache
+        $pdfContent = $dataSheet->get('value');
+
+        // $cacheDeleted supprime le contenu de la clé du cache
+        $cacheDeleted = $cache->deleteItem('pdf_content');
+
+        // dd($pdfContent);
+        dd($cacheDeleted);
+
         $classes = $classeRepository->getClassesAndEquipments();
         return $this->json(
             ['classes' => $classes],
@@ -46,7 +60,6 @@ class ChroniqueController extends AbstractController
             [],
             ['groups' => 'races_get_collection']
         );
-        
     }
 
     /**
@@ -58,10 +71,10 @@ class ChroniqueController extends AbstractController
         $ways = $wayRepository->getWaysAndWayAbilities();
         // $ways = $wayRepository->findAll();
         return $this->json(
-            ['ways'=>$ways],
+            ['ways' => $ways],
             Response::HTTP_OK,
             [],
-            ['groups'=>'ways_get_collection']
+            ['groups' => 'ways_get_collection']
         );
     }
 
@@ -73,10 +86,10 @@ class ChroniqueController extends AbstractController
     {
         $stats = $statRepository->findAll();
         return $this->json(
-            ['stats'=>$stats],
+            ['stats' => $stats],
             Response::HTTP_OK,
             [],
-            ['groups'=>'stats_get_collection']
+            ['groups' => 'stats_get_collection']
         );
     }
 
@@ -88,11 +101,10 @@ class ChroniqueController extends AbstractController
     {
         $religions = $religionRepository->findAll();
         return $this->json(
-            ['religions'=>$religions],
+            ['religions' => $religions],
             Response::HTTP_OK,
             [],
-            ['groups'=>'religions_get_collection']
+            ['groups' => 'religions_get_collection']
         );
     }
-
 }

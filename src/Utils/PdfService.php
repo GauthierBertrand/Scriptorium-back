@@ -32,7 +32,7 @@ public function showPdf($html)
     $this->domPdf->setPaper('A4', 'portrait');
     $this->domPdf->render();
     $this->domPdf->stream( "fiche_personnage.pdf", [
-        'Attachement' => false
+        'Attachment' => false
     ]);
 }
 
