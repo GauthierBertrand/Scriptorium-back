@@ -83,6 +83,10 @@ class UserController extends AbstractController
         $token = $tokenStorage->getToken();
         $user = $token->getUser();
 
+        foreach($user->getSheets() as $sheet) {
+            $manager->remove($sheet);
+        }
+
         $manager->remove($user);
         $manager->flush();
         
