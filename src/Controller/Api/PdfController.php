@@ -22,17 +22,25 @@ class PdfController extends AbstractController
     public function generatePdf(PdfService $pdf, SerializerInterface $serializer, Request $request): JsonResponse
     {
         $cache = new FilesystemAdapter();
+        $cache->deleteItem('pdf_content');
         $jsonContent = $request->getContent();
-        $PdfContent = $cache->get('pdf_content', function (ItemInterface $item) use ($serializer, $jsonContent) {
+        $PdfContent = $cache->get('pdf_content', function (ItemInterface $item) use ($jsonContent) {
             $item->expiresAfter(400);
-            return $serializer->deserialize($jsonContent, Sheet::class, "json");
+            return $jsonContent;
         });
 
+        // $cacheDeleted supprime le contenu de la clé du cache
+        // $cacheDeleted = $cache->deleteItem('pdf_content');
+
+        // dd($sheet);
+        // dd($cacheDeleted);
+
         // dd($PdfContent);
+        $jsonContent = $serializer->deserialize($jsonContent,Sheet::class,'json');
 
         //On stock le template twig avec le contenu de Request dans $html
         $html = $this->render('api/pdf/fiche.html.twig', [
-            'pdfContent' => $PdfContent,
+            'pdfContent' => $jsonContent,
         ]);
 
         // On envoie le template twig à la methode de DomPdf dans le pdfService

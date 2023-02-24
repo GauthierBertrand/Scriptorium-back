@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -75,8 +76,16 @@ class SheetController extends AbstractController
     {
         $token=$tokenInterface->getToken();
         $user=$token->getUser();
+        
+        $cache = new FilesystemAdapter;
+        $dataSheet = $cache->getItem('pdf_content');
 
-        $jsonContent = $request->getContent();
+        // ->get('value') pour recuperer la valeur du cache
+        $jsonContent = $dataSheet->get('value');
+
+        // dd($sheet);
+
+        // $jsonContent = $request->getContent();
         
         $sheet = $serializer->deserialize($jsonContent,Sheet::class,'json');
         $sheet->setUser($user);
@@ -93,6 +102,7 @@ class SheetController extends AbstractController
 
         $entityManager->persist($sheet);
         $entityManager->flush();
+        $cache->deleteItem('pdf_content');
 
         return $this->json(
             ['confirmation'=>'Fiche bien ajoutée'],

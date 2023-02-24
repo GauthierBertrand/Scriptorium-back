@@ -26,18 +26,6 @@ class ChroniqueController extends AbstractController
      */
     public function getClasses(ClasseRepository $classeRepository): JsonResponse
     {
-        $cache = new FilesystemAdapter;
-        $dataSheet = $cache->getItem('pdf_content');
-
-        // ->get('value') pour recuperer la valeur du cache
-        $pdfContent = $dataSheet->get('value');
-
-        // $cacheDeleted supprime le contenu de la clé du cache
-        $cacheDeleted = $cache->deleteItem('pdf_content');
-
-        // dd($pdfContent);
-        dd($cacheDeleted);
-
         $classes = $classeRepository->getClassesAndEquipments();
         return $this->json(
             ['classes' => $classes],
