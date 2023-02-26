@@ -133,6 +133,15 @@ class Sheet
     public function __construct()
     {
         $this->way_abilities = new ArrayCollection();
+
+        $this->stats = [
+            "Dextérité" => 1,
+            "Intelligence" => 1,
+            "Force" => 1,
+            "Sagesse" => 1,
+            "Charisme" => 1,
+            "Constitution" => 1,
+        ];
     }
 
     public function getId(): ?int
@@ -332,5 +341,14 @@ class Sheet
         return $this;
     }
 
-    
+    public function getEncodeStats() 
+    {
+        return json_encode($this->getStats());
+    }
+
+    public function setEncodeStats(string $stats) 
+    {
+        $this->stats = json_decode($stats, true);
+        return $this;
+    }
 }
