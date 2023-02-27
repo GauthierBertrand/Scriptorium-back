@@ -82,9 +82,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $sheets;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Token::class, mappedBy="user", orphanRemoval=true)
+     */
+    private $tokens;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $is_verified = false;
+
+
     public function __construct()
     {
         $this->sheets = new ArrayCollection();
+        $this->tokens = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -221,5 +233,55 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __toString()
     {
         return $this->getPseudo();
+    }
+
+    /**
+     * @return Collection<int, Token>
+     */
+    public function getTokens(): Collection
+    {
+        return $this->tokens;
+    }
+
+    public function addToken(Token $token): self
+    {
+        if (!$this->tokens->contains($token)) {
+            $this->tokens[] = $token;
+            $token->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeToken(Token $token): self
+    {
+        if ($this->tokens->removeElement($token)) {
+            // set the owning side to null (unless already changed)
+            if ($token->getUser() === $this) {
+                $token->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get the value of is_verified
+     */ 
+    public function getIsVerified(): ?bool
+    {
+        return $this->is_verified;
+    }
+
+    /**
+     * Set the value of is_verified
+     *
+     * @return  self
+     */ 
+    public function setIsVerified(bool $is_verified): self
+    {
+        $this->is_verified = $is_verified;
+
+        return $this;
     }
 }
