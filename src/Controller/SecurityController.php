@@ -3,12 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Utils\CheckSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -21,13 +21,21 @@ class SecurityController extends AbstractController
      * @Route("/inscription", name="app_security_inscription")
      * @return JsonResponse
      */
-    public function inscription(Request $request, SerializerInterface $serialiser, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager): JsonResponse
+    public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager): JsonResponse
     {
         $userDatas = $request->getContent();
 
-        $user = $serialiser->deserialize($userDatas, User::class, "json");
-
-        $errors = $validator->validate($user);
+        $result = $checker->serializeValidation($userDatas, User::class);
+            
+        if (!$result instanceof User) {
+            return $this->json(
+                ["error" => $result],
+                404,
+                []
+            );
+        }
+        
+        $errors = $validator->validate($result);
 
         if (count($errors) > 0) {
             $errorsJson = [];
@@ -43,9 +51,9 @@ class SecurityController extends AbstractController
             );
         }
 
-        $user->setPassword($passwordHasher->hashPassword($user, $user->getPassword()));
+        $result->setPassword($passwordHasher->hashPassword($result, $result->getPassword()));
         
-        $manager->persist($user);
+        $manager->persist($result);
         $manager->flush();
 
         return $this->json(

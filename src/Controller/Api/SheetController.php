@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\Sheet;
 use App\Repository\SheetRepository;
+use App\Utils\CheckSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -71,11 +72,10 @@ class SheetController extends AbstractController
      * @Route("/characters", name="post_sheets_item", methods={"POST"})
      * Post a sheet in database
      */
-    public function createSheet(SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager, TokenStorageInterface $tokenInterface): JsonResponse
+    public function createSheet(CheckSerializer $checker, ValidatorInterface $validator, EntityManagerInterface $entityManager, TokenStorageInterface $tokenInterface): JsonResponse
     {
         $token = $tokenInterface->getToken();
         $user = $token->getUser();
-
         // On récupère le contenu du cache généré via la route api/generator grace à la clé pdf_content
         $cache = new FilesystemAdapter;       
         $dataSheet = $cache->getItem('pdf_content');
@@ -93,24 +93,33 @@ class SheetController extends AbstractController
         $jsonContent = $dataSheet->get('value');
 
         // On deserialise le contenu du cache
-        $sheet = $serializer->deserialize($jsonContent, Sheet::class, 'json');
-        $sheet->setUser($user);
+        $result = $checker->serializeValidation($jsonContent, Sheet::class);
+            
+        if (!$result instanceof Sheet) {
+            return $this->json(
+                ["error" => $result],
+                404,
+                []
+            );
+        }
+        
+        $result->setUser($user);
 
-        $errors = $validator->validate($sheet);
+        $errors = $validator->validate($result);
         $errorList = [];
 
         if (count($errors) > 0) {
             foreach ($errors as $error) {
-                $errorList[$error->getPropertyPath()][] = $error->getMessage();
+                $errorList[$error->getPropertyPath()] = $error->getMessage();
             }
-            return $this->json($errorList, Response::HTTP_UNPROCESSABLE_ENTITY);
+            return $this->json(["errors" => $errorList], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $entityManager->persist($sheet);
+        $entityManager->persist($result);
         $entityManager->flush();
 
         // On vide le cache après l'envoi à la BDD
-        $cache->deleteItem('pdf_content');
+        // $cache->deleteItem('pdf_content');
 
         return $this->json(
             ['confirmation' => 'Fiche bien ajoutée'],
@@ -123,7 +132,7 @@ class SheetController extends AbstractController
      * Update character sheet
      * @Route("/characters/{id<\d+>}", name="sheets_patch_item", methods={"PATCH"})
      */
-    public function patch(Sheet $sheet = null, Request $request, SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager): JsonResponse
+    public function patch(Sheet $sheet = null, Request $request, CheckSerializer $checker, ValidatorInterface $validator, EntityManagerInterface $entityManager): JsonResponse
     {
         if (empty($sheet)) {
             return $this->json(
@@ -136,12 +145,24 @@ class SheetController extends AbstractController
         $this->denyAccessUnlessGranted('POST_EDIT', $sheet);
         $jsonContent = $request->getContent();
 
-        $sheet = $serializer->deserialize($jsonContent, Sheet::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $sheet]);
+        $result = $checker->serializeValidation($jsonContent, Sheet::class, [AbstractNormalizer::OBJECT_TO_POPULATE => $sheet]);
+            
+        if (!$result instanceof Sheet) {
+            return $this->json(
+                ["error" => $result],
+                404,
+                []
+            );
+        }
 
         $errors = $validator->validate($sheet);
 
         if (count($errors) > 0) {
-            return $this->json($errors, Response::HTTP_UNPROCESSABLE_ENTITY);
+            foreach($errors as $error) {
+                $errorJson[$error->getPropertyPath()] = $error->getMessage();
+            }
+
+            return $this->json(["errors" => $errorJson], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $entityManager->flush();
