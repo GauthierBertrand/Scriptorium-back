@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Admin\FormType\JsonEditorType;
 use App\Entity\Sheet;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -9,6 +10,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\CodeEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 
 class SheetCrudController extends AbstractCrudController
@@ -17,7 +19,6 @@ class SheetCrudController extends AbstractCrudController
     {
         return Sheet::class;
     }
-
     
     public function configureFields(string $pageName): iterable
     {
@@ -33,7 +34,7 @@ class SheetCrudController extends AbstractCrudController
             IntegerField::new('height'),
             IntegerField::new('weight'),
             TextField::new('hair'),
-            ArrayField::new('stats'),
+            TextareaField::new('encodestats')->setFormType(JsonEditorType::class)->setLabel("Stats"),
             AssociationField::new('user'),
             AssociationField::new('classe'),
             AssociationField::new('way_abilities'),
