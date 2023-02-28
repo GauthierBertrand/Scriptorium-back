@@ -76,9 +76,13 @@ class SheetController extends AbstractController
     {
         $token = $tokenInterface->getToken();
         $user = $token->getUser();
-        // On récupère le contenu du cache généré via la route api/generator grace à la clé pdf_content
-        $cache = new FilesystemAdapter;       
-        $dataSheet = $cache->getItem('pdf_content');
+
+        // On récupère le contenu du cache généré via la route api/generator grace à la clé pdf_content+id de session de l'utilisateur
+        $cache = new FilesystemAdapter;
+        $cacheKey = 'pdf_content_' . $request->getSession()->getId();
+        // dd($cacheKey);
+
+        $dataSheet = $cache->getItem($cacheKey);
 
         // On verifie si le cache n'est pas vide (on renvoie une erreur 400 s'il est vide)
         if (!$dataSheet->isHit()) {
