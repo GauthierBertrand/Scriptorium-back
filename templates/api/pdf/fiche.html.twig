@@ -2,6 +2,81 @@
 
 {% block title %}Chroniques oubliées{% endblock %}
 
+{% block CSS %}
+				{# {{ encore_entry_link_tags('app') }} #}
+				<style>
+					/* CSS pour la fiche de personnage */
+					bodypdf {
+						font-family: Arial, sans-serif;
+						font-size: 14px;
+					}
+
+					h1 {
+						text-align: center;
+						font-size: 28px;
+						margin: 20px 0;
+					}
+
+					.section {
+						margin-bottom: 20px;
+					}
+
+					.section-title {
+						font-size: 20px;
+						font-weight: bold;
+						margin-bottom: 10px;
+					}
+
+					table {
+						width: 100%;
+						border-collapse: collapse;
+						margin-bottom: 20px;
+					}
+
+					table,
+					th,
+					td {
+						border: 1px solid #ccc;
+					}
+
+					th,
+					td {
+						padding: 5px;
+						text-align: left;
+					}
+
+					.column {
+						float: left;
+						width: 50%;
+						padding: 0 20px;
+					}
+
+					.clear {
+						clear: both;
+					}
+
+
+					.portrait {
+						float: left;
+						margin-right: 20px;
+						border: 1px solid #ccc;
+						width: 150px;
+						height: 200px;
+						background-color: #fff;
+					}
+
+					.name {
+						font-size: 24px;
+						font-weight: bold;
+					}
+
+					.attribute {
+						font-weight: bold;
+					}
+				</style>
+
+{% endblock %}
+
 {% block body %}
 	<h1>Chroniques oubliées</h1>
 

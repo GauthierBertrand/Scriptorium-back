@@ -25,7 +25,7 @@ class UserController extends AbstractController
         // Decode de content Request and return an array with keys
         $passwords = json_decode($request->getContent(), true);
 
-        if (isset($passwords["current_password"]) OR isset($passwords["new_password"])) {
+        if (isset($passwords["current_password"]) or isset($passwords["new_password"])) {
             return $this->json(
                 ['error' => "Vous devez indiqué un champ 'current_password' et un champ 'new_password' dans votre requête."],
                 400,
@@ -41,7 +41,7 @@ class UserController extends AbstractController
         // ! Error doesn't exist, don't worry for this !
         if ($passwordHasher->isPasswordValid($user, $passwords["current_password"])) {
             $user->setPassword($passwords["new_password"]);
-            
+
             $errors = $validator->validate($user);
 
             if (count($errors) > 0) {
@@ -64,13 +64,14 @@ class UserController extends AbstractController
             return $this->json(
                 ["confirmation" => "Password changed"],
                 201,
-                []);
+                []
+            );
         }
 
         return $this->json(
             ["invalidation" => "Invalid Password"],
             403,
-            []    
+            []
         );
     }
 
@@ -78,18 +79,18 @@ class UserController extends AbstractController
      * Permet la suppression d'un utilisateur authentifié via son token JWT
      * @Route("/delete", name="app_user_delete", methods="DELETE")
      */
-    public function deleteUser(TokenStorageInterface $tokenStorage, EntityManagerInterface $manager): JsonResponse 
+    public function deleteUser(TokenStorageInterface $tokenStorage, EntityManagerInterface $manager): JsonResponse
     {
         $token = $tokenStorage->getToken();
         $user = $token->getUser();
 
-        foreach($user->getSheets() as $sheet) {
+        foreach ($user->getSheets() as $sheet) {
             $manager->remove($sheet);
         }
 
         $manager->remove($user);
         $manager->flush();
-        
+
         return $this->json(
             ["confirmation" => "User removed"],
             200,
