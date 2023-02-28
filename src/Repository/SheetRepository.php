@@ -39,6 +39,19 @@ class SheetRepository extends ServiceEntityRepository
         }
     }
 
+    public function getSheetsByUser($user) 
+    {
+        $manager = $this->getEntityManager();
+
+        $query = $manager->createQuery(
+            "SELECT sheet FROM App\Entity\Sheet sheet WHERE sheet.user = :user"
+        );
+
+        $query->setParameter("user", $user);
+
+        return $query->getResult();
+    }
+
 //    /**
 //     * @return Sheet[] Returns an array of Sheet objects
 //     */
