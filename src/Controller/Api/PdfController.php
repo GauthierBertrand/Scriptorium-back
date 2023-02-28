@@ -4,7 +4,6 @@ namespace App\Controller\Api;
 
 use App\Entity\Sheet;
 use App\Utils\PdfService;
-use App\Repository\SheetRepository;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

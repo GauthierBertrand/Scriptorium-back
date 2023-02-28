@@ -6,6 +6,7 @@ use App\Repository\SheetRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -26,6 +27,14 @@ class Sheet
      * @ORM\Column(type="string", length=64)
      * @Groups({"sheets_get_collection"})
      * @Groups({"sheet_get_item"})
+     * @Assert\Length(
+     *  max = 64,
+     *  maxMessage = "Le nom du personnage ne doit pas avoir plus de {{ limit }} caractères."
+     * )
+     * @Assert\NotBlank(
+     *  message = "Le personnage doit avoir un nom."
+     * )
+   
      */
     private $character_name;
 
@@ -33,34 +42,44 @@ class Sheet
      * @ORM\Column(type="string", length=64)
      * @Groups({"sheets_get_collection"})
      * @Groups({"sheet_get_item"})
+     * @Assert\Length(
+     *  max = 64,
+     *  maxMessage = "La race du personnage ne doit pas avoir plus de {{ limit }} caractères."
+     * )
+     * @Assert\NotBlank(
+     *  message = "Le personnage doit avoir une race."
+     * )
      */
     private $race_name;
 
     /**
      * @ORM\Column(type="string", length=64, nullable=true)
-     * @Groups({"sheets_get_collection"})
      * @Groups({"sheet_get_item"})
+     * @Assert\Length(
+     *  max = 64,
+     *  maxMessage = "La religion du personnage ne doit pas avoir plus de {{ limit }} caractères."
+     * )
      */
     private $religion_name;
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"sheets_get_collection"})
      * @Groups({"sheet_get_item"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
-     * @Groups({"sheets_get_collection"})
      * @Groups({"sheet_get_item"})
      */
     private $age;
 
     /**
      * @ORM\Column(type="integer")
-     * @Groups({"sheets_get_collection"})
      * @Groups({"sheet_get_item"})
+     * @Assert\NotNull(
+     *  message = "Le personnage doit avoir un level."
+     * )
      */
     private $level;
 
@@ -68,42 +87,54 @@ class Sheet
      * @ORM\Column(type="string", length=255)
      * @Groups({"sheets_get_collection"})
      * @Groups({"sheet_get_item"})
+     * @Assert\NotBlank(
+     *  message = "Le personnage doit avoir une image."
+     * )
+     * @Assert\Length(
+     *  max = 64,
+     *  maxMessage = "L'url de l'image ne peut pas exceder {{ limit }} caractères."
+     * )
      */
     private $picture;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
-     * @Groups({"sheets_get_collection"})
      * @Groups({"sheet_get_item"})
      */
     private $height;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
-     * @Groups({"sheets_get_collection"})
      * @Groups({"sheet_get_item"})
      */
     private $weight;
 
     /**
      * @ORM\Column(type="string", length=32, nullable=true)
-     * @Groups({"sheets_get_collection"})
      * @Groups({"sheet_get_item"})
+     * @Assert\Length(
+     *  max = 32,
+     *  maxMessage = "La description des cheveux du personnages ne doit être de plus de {{ limit }} caractères."
+     * )
      */
     private $hair;
 
     /**
      * @ORM\Column(type="json")
-     * @Groups({"sheets_get_collection"})
      * @Groups({"sheet_get_item"})
+     * @Assert\NotNull(
+     *  message = "Le personnage doit obligatoirement avoir des stats."
+     * )
      */
     private $stats = [];
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="sheets")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"sheets_get_collection"})
      * @Groups({"sheet_get_item"})
+     * @Assert\NotNull(
+     *  message = "La fiche doit obligatoirement être relié à un utilisateur."
+     * )
      */
     private $user;
 
@@ -112,12 +143,14 @@ class Sheet
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"sheets_get_collection"})
      * @Groups({"sheet_get_item"})
+     * @Assert\NotNull(
+     *  message = "Le personnage doit avoir une classe."
+     * )
      */
     private $classe;
 
     /**
      * @ORM\ManyToMany(targetEntity=WayAbility::class, inversedBy="sheets")
-     * @Groups({"sheets_get_collection"})
      * @Groups({"sheet_get_item"})
      */
     private $way_abilities;
@@ -125,8 +158,10 @@ class Sheet
     /**
      * @ORM\ManyToOne(targetEntity=RacialAbility::class, inversedBy="sheets")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"sheets_get_collection"})
      * @Groups({"sheet_get_item"})
+     * @Assert\NotNull(
+     *  message = "La fiche doit obligatoirement avoir une compétence raciale."
+     * )
      */
     private $racialAbility;
 

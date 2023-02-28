@@ -28,9 +28,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Assert\NotNull(
-     *  message = "Le champ email ne peut pas être null."
-     * )
      * @Assert\NotBlank(
      *  message = "Le champ email ne peut pas être vide."
      * )
@@ -48,9 +45,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
-     * @Assert\NotNull(
-     *  message = "Le champ password ne peut pas être null."
-     * )
      * @Assert\NotBlank(
      *  message = "Le champ password ne peut pas être vide."
      * )

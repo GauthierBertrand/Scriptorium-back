@@ -2,7 +2,7 @@
 
 namespace App\EventSubscriber;
 
-use App\Entity\Sheet;
+use App\Entity\User;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeEntityUpdatedEvent;
 use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeEntityPersistedEvent;
@@ -19,7 +19,7 @@ class PasswordUpdateSubscriber implements EventSubscriberInterface
 
     public function setPasswordHashed(BeforeEntityUpdatedEvent $event): void
     {
-        if ($event->getEntityInstance() instanceof Sheet) {
+        if (!$event->getEntityInstance() instanceof User) {
             return;
         }
 
@@ -30,7 +30,7 @@ class PasswordUpdateSubscriber implements EventSubscriberInterface
 
     public function createPasswordHashed(BeforeEntityPersistedEvent $event): void
     {
-        if ($event->getEntityInstance() instanceof Sheet) {
+        if (!$event->getEntityInstance() instanceof User) {
             return;
         }
 
