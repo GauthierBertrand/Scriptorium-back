@@ -50,7 +50,7 @@ class SheetController extends AbstractController
     {
         $token = $tokenInterface->getToken();
         $user = $token->getUser();
-        $sheets = $sheetRepository->findBy(['user' => $user]);
+        $sheets = $sheetRepository->getSheetsByUser($user);
 
         if (empty($sheets)) {
             return $this->json(
