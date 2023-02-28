@@ -3,9 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Entity\Token;
-use App\Repository\UserRepository;
-use App\Utils\MailService;
 use App\Utils\CheckSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,12 +25,19 @@ class SecurityController extends AbstractController
      * @Route("/inscription", name="app_security_inscription")
      * @return JsonResponse
      */
-    public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager, MailService $mail): JsonResponse
-    {
+    public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager): JsonResponse    {
         $userDatas = $request->getContent();
 
         $result = $checker->serializeValidation($userDatas, User::class);
 
+        if (!$result instanceof User) {
+            return $this->json(
+                ["error" => $result],
+                404,
+                []
+            );
+        }
+        
         $errors = $validator->validate($result);
 
         if (count($errors) > 0) {
@@ -52,16 +56,7 @@ class SecurityController extends AbstractController
 
         $result->setPassword($passwordHasher->hashPassword($result, $result->getPassword()));
 
-        // On génère un token aléatoire de 32 caractères
-        $token = bin2hex(random_bytes(16));
-
-        // On créé une nouvelle instance de l'entité Token et on la lie à l'utilisateur
-        $tokenEntity = new Token();
-        $tokenEntity->setToken($token);
-        $tokenEntity->setUser($result);
-
         $manager->persist($result);
-        $manager->persist($tokenEntity);
         $manager->flush();
 
         // On génère le lien d'activation avec le token avec la fonction generateUrl
