@@ -10,77 +10,8 @@
 		rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
 		{# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
 		{% block stylesheets %}
-			{# {{ encore_entry_link_tags('app') }} #}
-			<style>
-				/* CSS pour la fiche de personnage */
-				body {
-					font-family: Arial, sans-serif;
-					font-size: 14px;
-				}
-
-				h1 {
-					text-align: center;
-					font-size: 28px;
-					margin: 20px 0;
-				}
-
-				.section {
-					margin-bottom: 20px;
-				}
-
-				.section-title {
-					font-size: 20px;
-					font-weight: bold;
-					margin-bottom: 10px;
-				}
-
-				table {
-					width: 100%;
-					border-collapse: collapse;
-					margin-bottom: 20px;
-				}
-
-				table,
-				th,
-				td {
-					border: 1px solid #ccc;
-				}
-
-				th,
-				td {
-					padding: 5px;
-					text-align: left;
-				}
-
-				.column {
-					float: left;
-					width: 50%;
-					padding: 0 20px;
-				}
-
-				.clear {
-					clear: both;
-				}
-
-				
-				.portrait {
-					float: left;
-					margin-right: 20px;
-					border: 1px solid #ccc;
-					width: 150px;
-					height: 200px;
-					background-color: #fff;
-				}
-
-				.name {
-					font-size: 24px;
-					font-weight: bold;
-				}
-
-				.attribute {
-					font-weight: bold;
-				}
-			</style>
+			{% block CSS %}
+				{% endblock %}
 			{% endblock %}
 
 			{% block javascripts %}

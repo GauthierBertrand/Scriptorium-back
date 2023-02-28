@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Entity\Token;
+use App\Repository\UserRepository;
 use App\Utils\MailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +27,7 @@ class SecurityController extends AbstractController
      * @Route("/inscription", name="app_security_inscription")
      * @return JsonResponse
      */
-    public function inscription(Request $request, SerializerInterface $serialiser, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager, MailerInterface $mailer, MailService $mail): JsonResponse
+    public function inscription(Request $request, SerializerInterface $serialiser, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager, MailService $mail): JsonResponse
     {
         $userDatas = $request->getContent();
 
@@ -70,12 +71,10 @@ class SecurityController extends AbstractController
             'webmaster@scriptorium.com',
             $user->getEmail(),
             'Veuillez activer votre compte Scriptorium',
-            "Bonjour,<br>
-            <br>Veuillez cliquer sur le lien suivant pour activer votre compte : <a href=\"$activationLink\">Activer mon compte</a><br><br>Cordialement,<br>
-            L'équipe du Scriptorium",
+            "validation",
             [
                 'user' => $user,
-                'token' => $token
+                'link' => $activationLink
             ]
         );
 
@@ -98,7 +97,11 @@ class SecurityController extends AbstractController
 
         //Si aucun token ne correspond alors
         if (!$tokenEntity) {
-            return new Response("Le token d'activation est invalide.", 400);
+            return $this->json(
+                ["erreur" => "Le token d'activation est invalide ou le compte est déja activé"],
+                400,
+                []
+            );  
         }
 
         $this->denyAccessUnlessGranted('ACCOUNT_VALIDATION', $tokenEntity);
@@ -118,15 +121,51 @@ class SecurityController extends AbstractController
         );
     }
 
-        /**
+    /**
      * Renvoi du lien d'activation du compte
-     * @Route("/resendactivation", name="app_resend_activation_link")
+     * @Route("/api/resendactivation", name="app_resend_activation_link")
      * @return Response
      */
-    public function resendActivation(EntityManagerInterface $manager): Response
+    public function resendActivation(EntityManagerInterface $manager,MailService $mail, TokenStorageInterface $tokenInterface): Response
     {
+        $userToken = $tokenInterface->getToken();
+       
+        if (!$userToken) {
+            return $this->json(
+                ["erreur" => "L\utilisateur doit etre connecté"],
+                403,
+                []
+            );  
+        }
 
+        $user = $userToken->getUser();
+
+        $mailToken = $manager->getRepository(Token::class)->findOneBy(['user' => $user]);
+
+        //On recréé un lien avec le token de l'utilisateur
+        $activationLink = $this->generateUrl('app_security_activation', ['token' => $mailToken->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        //On lui renvoi le mail
+        $mail->send(
+            'webmaster@scriptorium.com',
+            $mailToken->getUser()->getEmail(),
+            'Veuillez activer votre compte Scriptorium',
+            "validation",
+            [
+                'user' => $user,
+                'token' => $mailToken->getToken(),
+                'link' => $activationLink
+
+            ]
+        );
+    
+        return $this->json(
+            ["success" => "Le mail de validation à bien été renvoyé"],
+            201,
+            []
+        );
     }
+    
 
     /**
      * @Route("/login", name="login")

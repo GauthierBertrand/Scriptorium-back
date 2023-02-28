@@ -37,7 +37,7 @@ $email = (new TemplatedEmail())
     ->from($from)
     ->to($to)
     ->subject($subject)
-    ->html($template)
+    ->htmlTemplate("api/mail/$template.html.twig")
     ->context($context);
 
     // on venvoie le mail avec la fonction send de Mailer
