@@ -72,7 +72,7 @@ class SheetController extends AbstractController
      * @Route("/characters", name="post_sheets_item", methods={"POST"})
      * Post a sheet in database
      */
-    public function createSheet(CheckSerializer $checker, ValidatorInterface $validator, EntityManagerInterface $entityManager, TokenStorageInterface $tokenInterface): JsonResponse
+    public function createSheet(Request $request, SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager, TokenStorageInterface $tokenInterface): JsonResponse
     {
         $token = $tokenInterface->getToken();
         $user = $token->getUser();
