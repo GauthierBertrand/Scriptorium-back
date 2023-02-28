@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Entity\Token;
 use App\Repository\UserRepository;
 use App\Utils\MailService;
+use App\Utils\CheckSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
@@ -27,13 +28,13 @@ class SecurityController extends AbstractController
      * @Route("/inscription", name="app_security_inscription")
      * @return JsonResponse
      */
-    public function inscription(Request $request, SerializerInterface $serialiser, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager, MailService $mail): JsonResponse
+    public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager, MailService $mail): JsonResponse
     {
         $userDatas = $request->getContent();
 
-        $user = $serialiser->deserialize($userDatas, User::class, "json");
+        $result = $checker->serializeValidation($userDatas, User::class);
 
-        $errors = $validator->validate($user);
+        $errors = $validator->validate($result);
 
         if (count($errors) > 0) {
             $errorsJson = [];
@@ -49,7 +50,7 @@ class SecurityController extends AbstractController
             );
         }
 
-        $user->setPassword($passwordHasher->hashPassword($user, $user->getPassword()));
+        $result->setPassword($passwordHasher->hashPassword($result, $result->getPassword()));
 
         // On génère un token aléatoire de 32 caractères
         $token = bin2hex(random_bytes(16));
@@ -57,9 +58,9 @@ class SecurityController extends AbstractController
         // On créé une nouvelle instance de l'entité Token et on la lie à l'utilisateur
         $tokenEntity = new Token();
         $tokenEntity->setToken($token);
-        $tokenEntity->setUser($user);
+        $tokenEntity->setUser($result);
 
-        $manager->persist($user);
+        $manager->persist($result);
         $manager->persist($tokenEntity);
         $manager->flush();
 
