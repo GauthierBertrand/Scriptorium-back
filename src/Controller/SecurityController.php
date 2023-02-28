@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class SecurityController extends AbstractController
 {
@@ -61,7 +62,7 @@ class SecurityController extends AbstractController
         $manager->persist($tokenEntity);
         $manager->flush();
 
-        // Générer le lien d'activation avec le token avec la fonction generateUrl
+        // On génère le lien d'activation avec le token avec la fonction generateUrl
         $activationLink = $this->generateUrl('app_security_activation', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
 
         //J'injecte mon service d'envoi de mail et j'appel mon objet mail
@@ -69,13 +70,14 @@ class SecurityController extends AbstractController
             'webmaster@scriptorium.com',
             $user->getEmail(),
             'Veuillez activer votre compte Scriptorium',
-            "Bonjour,<br><br>Veuillez cliquer sur le lien suivant pour activer votre compte : <a href=\"$activationLink\">$activationLink</a><br><br>Cordialement,<br>L'équipe du Scriptorium",
+            "Bonjour,<br>
+            <br>Veuillez cliquer sur le lien suivant pour activer votre compte : <a href=\"$activationLink\">Activer mon compte</a><br><br>Cordialement,<br>
+            L'équipe du Scriptorium",
             [
                 'user' => $user,
                 'token' => $token
             ]
         );
-
 
         return $this->json(
             ["confirmation" => "Le compte à bien été créé et un email de validation envoyé."],
@@ -86,25 +88,44 @@ class SecurityController extends AbstractController
 
     /**
      * Activation du compte de l'utilisateur en utilisant le token envoyé par email
-     * @Route("/activation/{token}", name="app_security_activation")
+     * @Route("/api/activation/{token}", name="app_security_activation")
      * @return Response
      */
     public function activation($token, EntityManagerInterface $manager): Response
     {
+        //On cherche dans la BDD le token similaire à celui recupéré dans le lien
         $tokenEntity = $manager->getRepository(Token::class)->findOneBy(['token' => $token]);
 
+        //Si aucun token ne correspond alors
         if (!$tokenEntity) {
             return new Response("Le token d'activation est invalide.", 400);
         }
 
-        $user = $tokenEntity->getUser();
-        $user->setIsVerified(true);
+        $this->denyAccessUnlessGranted('ACCOUNT_VALIDATION', $tokenEntity);
 
-        //On supprime le token de la base de données
+        //Si le token correspond on recup le user et on passe isVerified à true
+        $actualUser = $tokenEntity->getUser();
+        $actualUser->setIsVerified(true);
+
+        //On supprime ensuite le token de la base de données
         $manager->remove($tokenEntity);
         $manager->flush();
 
-        return new Response("Le compte a bien été activé.", 200);
+        return $this->json(
+            ["confirmation" => "Le compte à bien été activé."],
+            201,
+            []
+        );
+    }
+
+        /**
+     * Renvoi du lien d'activation du compte
+     * @Route("/resendactivation", name="app_resend_activation_link")
+     * @return Response
+     */
+    public function resendActivation(EntityManagerInterface $manager): Response
+    {
+
     }
 
     /**
