@@ -123,7 +123,7 @@ class SheetController extends AbstractController
         $entityManager->flush();
 
         // On vide le cache après l'envoi à la BDD
-        // $cache->deleteItem('pdf_content');
+        $cache->deleteItem($cacheKey);
 
         return $this->json(
             ['confirmation' => 'Fiche bien ajoutée'],
