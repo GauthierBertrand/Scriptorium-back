@@ -71,14 +71,17 @@ class SheetController extends AbstractController
      * @Route("/characters", name="post_sheets_item", methods={"POST"})
      * Post a sheet in database
      */
-    public function createSheet(SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager, TokenStorageInterface $tokenInterface): JsonResponse
+    public function createSheet(Request $request, SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager, TokenStorageInterface $tokenInterface): JsonResponse
     {
         $token = $tokenInterface->getToken();
         $user = $token->getUser();
 
-        // On récupère le contenu du cache généré via la route api/generator grace à la clé pdf_content
-        $cache = new FilesystemAdapter;       
-        $dataSheet = $cache->getItem('pdf_content');
+        // On récupère le contenu du cache généré via la route api/generator grace à la clé pdf_content+id de session de l'utilisateur
+        $cache = new FilesystemAdapter;
+        $cacheKey = 'pdf_content_' . $request->getSession()->getId();
+        // dd($cacheKey);
+
+        $dataSheet = $cache->getItem($cacheKey);
 
         // On verifie si le cache n'est pas vide (on renvoie une erreur 400 s'il est vide)
         if (!$dataSheet->isHit()) {
@@ -91,7 +94,7 @@ class SheetController extends AbstractController
 
         // ->get('value') pour recuperer la valeur du cache
         $jsonContent = $dataSheet->get('value');
-
+        dd($dataSheet);
         // On deserialise le contenu du cache
         $sheet = $serializer->deserialize($jsonContent, Sheet::class, 'json');
         $sheet->setUser($user);
@@ -110,7 +113,7 @@ class SheetController extends AbstractController
         $entityManager->flush();
 
         // On vide le cache après l'envoi à la BDD
-        $cache->deleteItem('pdf_content');
+        $cache->deleteItem($cacheKey);
 
         return $this->json(
             ['confirmation' => 'Fiche bien ajoutée'],
@@ -158,17 +161,17 @@ class SheetController extends AbstractController
      * Delete a sheet
      * @Route("/characters/{id<\d+>}", name="sheets_delete_item", methods={"DELETE"})
      */
-    public function deleteSheet(Sheet $sheet=null, Request $request, SerializerInterface $serializer,EntityManagerInterface $entityManager): JsonResponse
+    public function deleteSheet(Sheet $sheet = null, Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager): JsonResponse
     {
         if (empty($sheet)) {
             return $this->json(
-                ['message' => 'Fiche non trouvée']
-                , Response::HTTP_NOT_FOUND,
+                ['message' => 'Fiche non trouvée'],
+                Response::HTTP_NOT_FOUND,
                 []
-            ); 
+            );
         }
 
-        $this->denyAccessUnlessGranted('POST_EDIT',$sheet);
+        $this->denyAccessUnlessGranted('POST_EDIT', $sheet);
 
         $entityManager->remove($sheet);
         $entityManager->flush();

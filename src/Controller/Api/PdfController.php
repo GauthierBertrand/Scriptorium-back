@@ -23,12 +23,19 @@ class PdfController extends AbstractController
     {
         // On instencie FilesystemAdapter pour gérer le cache
         $cache = new FilesystemAdapter();
+
+        //On recupere la clé de session pour la concatener à la clé de cache et en faire une clé unique à chaque utilisateur
+        $cacheKey = 'pdf_content_' . $request->getSession()->getId();
+        // dd($cacheKey);
+
         // Par précaution on vide le cache de la clé pdf_content
-        $cache->deleteItem('pdf_content');
+        $cache->deleteItem($cacheKey);
+
         $jsonContent = $request->getContent();
+
         // On enregistre dans le cache le contenu de la $jsonContent (Request)
-        $cache->get('pdf_content', function (ItemInterface $item) use ($jsonContent) {
-            $item->expiresAfter(400);
+        $cache->get($cacheKey, function (ItemInterface $item) use ($jsonContent) {
+            $item->expiresAfter(900);
             return $jsonContent;
         });
 
