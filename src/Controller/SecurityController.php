@@ -3,12 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\User;
-<<<<<<< feature-mail-validation-account
-use App\Entity\Token;
-use App\Repository\UserRepository;
-use App\Utils\MailService;
-=======
->>>>>>> develop
 use App\Utils\CheckSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +10,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,19 +25,11 @@ class SecurityController extends AbstractController
      * @Route("/inscription", name="app_security_inscription")
      * @return JsonResponse
      */
-<<<<<<< feature-mail-validation-account
-    public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager, MailService $mail): JsonResponse
-=======
-    public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager): JsonResponse
->>>>>>> develop
-    {
+    public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager, MailerInterface $mail): JsonResponse    {
         $userDatas = $request->getContent();
 
         $result = $checker->serializeValidation($userDatas, User::class);
-<<<<<<< feature-mail-validation-account
 
-=======
-            
         if (!$result instanceof User) {
             return $this->json(
                 ["error" => $result],
@@ -51,7 +38,6 @@ class SecurityController extends AbstractController
             );
         }
         
->>>>>>> develop
         $errors = $validator->validate($result);
 
         if (count($errors) > 0) {
@@ -69,22 +55,8 @@ class SecurityController extends AbstractController
         }
 
         $result->setPassword($passwordHasher->hashPassword($result, $result->getPassword()));
-<<<<<<< feature-mail-validation-account
-
-        // On génère un token aléatoire de 32 caractères
-        $token = bin2hex(random_bytes(16));
-
-        // On créé une nouvelle instance de l'entité Token et on la lie à l'utilisateur
-        $tokenEntity = new Token();
-        $tokenEntity->setToken($token);
-        $tokenEntity->setUser($result);
 
         $manager->persist($result);
-        $manager->persist($tokenEntity);
-=======
-        
-        $manager->persist($result);
->>>>>>> develop
         $manager->flush();
 
         // On génère le lien d'activation avec le token avec la fonction generateUrl
@@ -206,3 +178,4 @@ class SecurityController extends AbstractController
         ]);
     }
 }
+
