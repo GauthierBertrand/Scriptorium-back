@@ -3,11 +3,15 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\Token;
+use App\Utils\MailService;
 use App\Utils\CheckSerializer;
+use Doctrine\ORM\EntityManager;
+use Symfony\Component\Mime\Email;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
-use App\Utils\MailService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,6 +21,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class SecurityController extends AbstractController
@@ -26,7 +31,8 @@ class SecurityController extends AbstractController
      * @Route("/inscription", name="app_security_inscription")
      * @return JsonResponse
      */
-    public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager, MailerInterface $mail): JsonResponse    {
+    public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager, MailService $mail): JsonResponse
+    {
         $userDatas = $request->getContent();
 
         $result = $checker->serializeValidation($userDatas, User::class);
@@ -38,7 +44,7 @@ class SecurityController extends AbstractController
                 []
             );
         }
-        
+
         $errors = $validator->validate($result);
 
         if (count($errors) > 0) {
@@ -57,8 +63,18 @@ class SecurityController extends AbstractController
 
         $result->setPassword($passwordHasher->hashPassword($result, $result->getPassword()));
 
+        // On génère un token aléatoire de 32 caractères
+        $token = bin2hex(random_bytes(16));
+
+        // On créé une nouvelle instance de l'entité Token et on la lie à l'utilisateur
+        $tokenEntity = new Token();
+        $tokenEntity->setToken($token);
+        $tokenEntity->setUser($result);
+
+        $manager->persist($tokenEntity);
         $manager->persist($result);
         $manager->flush();
+
 
         // On génère le lien d'activation avec le token avec la fonction generateUrl
         $activationLink = $this->generateUrl('app_security_activation', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
@@ -66,11 +82,11 @@ class SecurityController extends AbstractController
         //J'injecte mon service d'envoi de mail et j'appel mon objet mail
         $mail->send(
             'webmaster@scriptorium.com',
-            $user->getEmail(),
+            $result->getEmail(),
             'Veuillez activer votre compte Scriptorium',
             "validation",
             [
-                'user' => $user,
+                'user' => $result,
                 'link' => $activationLink
             ]
         );
@@ -98,7 +114,7 @@ class SecurityController extends AbstractController
                 ["erreur" => "Le token d'activation est invalide ou le compte est déja activé"],
                 400,
                 []
-            );  
+            );
         }
 
         $this->denyAccessUnlessGranted('ACCOUNT_VALIDATION', $tokenEntity);
@@ -120,19 +136,19 @@ class SecurityController extends AbstractController
 
     /**
      * Renvoi du lien d'activation du compte
-     * @Route("/api/resendactivation", name="app_resend_activation_link")
+     * @Route("/api/resend-activation", name="app_resend_activation_link")
      * @return Response
      */
-    public function resendActivation(EntityManagerInterface $manager,MailService $mail, TokenStorageInterface $tokenInterface): Response
+    public function resendActivation(EntityManagerInterface $manager, MailService $mail, TokenStorageInterface $tokenInterface): Response
     {
         $userToken = $tokenInterface->getToken();
-       
+
         if (!$userToken) {
             return $this->json(
                 ["erreur" => "L\utilisateur doit etre connecté"],
                 403,
                 []
-            );  
+            );
         }
 
         $user = $userToken->getUser();
@@ -155,14 +171,13 @@ class SecurityController extends AbstractController
 
             ]
         );
-    
+
         return $this->json(
             ["success" => "Le mail de validation à bien été renvoyé"],
             201,
             []
         );
     }
-    
 
     /**
      * @Route("/login", name="login")
@@ -178,5 +193,57 @@ class SecurityController extends AbstractController
             'last_username' => $lastUsername
         ]);
     }
-}
 
+    /**
+     * @Route("api/reset-password", name="app_reset_password")
+     */
+    public function request(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, MailService $mail, TokenGeneratorInterface $tokenGenerator): Response
+    {
+        $email = $request->getContent();
+        $data = json_decode($email, true);
+        $email = $data['email'];
+
+        $user = $userRepository->findOneBy(['email' => $email]);
+
+        if (!$user) {
+            return $this->json(
+                ["erreur" => "Aucun utilisateur avec cette adresse mail"],
+                403,
+                []
+            );
+        }
+
+        $token = bin2hex(random_bytes(16));
+
+        $tokenEntity = new Token();
+        $tokenEntity->setToken($token);
+        $tokenEntity->setUser($user);
+        // dd($tokenEntity);
+
+        $entityManager->persist($tokenEntity);
+        $entityManager->persist($user);
+        $entityManager->flush();
+        // dd($tokenEntity);
+
+        $activationLink = $this->generateUrl('app_security_activation', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        $mail->send(
+            'webmaster@scriptorium.com',
+            $email,
+            'Scriptorium - Reinitialisez votre mot de passe',
+            "reinitialisation",
+            [
+                'user' => $user,
+                'token' => $token,
+                'link' => $activationLink
+
+            ]
+        );
+
+        return $this->json(
+            ["success" => "Le mail de réinitialisation à bien été renvoyé"],
+            201,
+            []
+        );
+    }
+}
