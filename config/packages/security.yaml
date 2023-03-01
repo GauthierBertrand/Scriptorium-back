@@ -60,9 +60,14 @@ security:
         - { path: ^/api/activation, roles: ROLE_USER }
         - { path: ^/api/resend-activation, roles: ROLE_USER }
         - { path: ^/api/characters, roles: ROLE_USER }
+        - { path: ^/api/game-master/users, roles: ROLE_USER }
+        - { path: ^/api/game-master/groups/add, roles: ROLE_USER }
+        - { path: ^/api/game-master, roles: ROLE_GAME_MASTER }
         - { path: ^/inscription, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
 
+    role_hierarchy:
+        ROLE_GAME_MASTER: ROLE_USER
         # - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
