@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Entity\Token;
+use App\Form\ResetPasswordType;
+use App\Repository\TokenRepository;
 use App\Utils\MailService;
 use App\Utils\CheckSerializer;
 use Doctrine\ORM\EntityManager;
@@ -21,6 +23,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\DependencyInjection\ResettableServicePass;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
@@ -94,7 +97,7 @@ class SecurityController extends AbstractController
                 'link' => $activationLink
             ]);
 
-            $mailer->send($email);
+        $mailer->send($email);
 
         return $this->json(
             ["confirmation" => "Le compte à bien été créé et un email de validation envoyé."],
@@ -144,7 +147,7 @@ class SecurityController extends AbstractController
      * @Route("/api/resend-activation", name="app_resend_activation_link")
      * @return Response
      */
-    public function resendActivation(EntityManagerInterface $manager, MailService $mail, MailerInterface $mailer, TokenStorageInterface $tokenInterface): Response
+    public function resendActivation(EntityManagerInterface $manager, MailerInterface $mailer, TokenStorageInterface $tokenInterface): Response
     {
         $userToken = $tokenInterface->getToken();
 
@@ -152,30 +155,31 @@ class SecurityController extends AbstractController
 
         $mailToken = $manager->getRepository(Token::class)->findOneBy(['user' => $user]);
 
-        if($mailToken == null){
+        if ($mailToken == null) {
             return $this->json(
                 ["erreur" => "Aucun token pour ce compte"],
                 404,
                 []
             );
-            }
+        }
 
         //On recréé un lien avec le token de l'utilisateur
         $activationLink = $this->generateUrl('app_security_activation', ['token' => $mailToken->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
 
         //On lui renvoi le mail
-        $mail->send(
-            'webmaster@scriptorium.com',
-            $mailToken->getUser()->getEmail(),
-            'Veuillez activer votre compte Scriptorium',
-            "validation",
-            [
+        $email = (new TemplatedEmail())
+            ->from('webmaster@scriptorium.com')
+            ->to($mailToken->getUser()->getEmail())
+            ->subject('Veuillez activer votre compte Scriptorium')
+            ->htmlTemplate("api/mail/validation.html.twig")
+            ->context([
                 'user' => $user,
                 'token' => $mailToken->getToken(),
                 'link' => $activationLink
 
-            ]
-        );
+            ]);
+
+        $mailer->send($email);
 
         return $this->json(
             ["success" => "Le mail de validation à bien été renvoyé"],
@@ -202,12 +206,11 @@ class SecurityController extends AbstractController
     /**
      * @Route("api/reset-password", name="app_reset_password")
      */
-    public function request(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, MailService $mail, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator): Response
+    public function ResetMailSend(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator): Response
     {
         $email = $request->getContent();
         $data = json_decode($email, true);
         $email = $data['email'];
-
         $user = $userRepository->findOneBy(['email' => $email]);
 
         if (!$user) {
@@ -218,7 +221,7 @@ class SecurityController extends AbstractController
             );
         }
 
-        $token = bin2hex(random_bytes(16));
+        $token = $tokenGenerator->generateToken();
 
         $tokenEntity = new Token();
         $tokenEntity->setToken($token);
@@ -230,25 +233,67 @@ class SecurityController extends AbstractController
         $entityManager->flush();
         // dd($tokenEntity);
 
-        $activationLink = $this->generateUrl('app_security_activation', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
+        $activationLink = $this->generateUrl('app_reset_password_form', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        $mail->send(
-            'webmaster@scriptorium.com',
-            $email,
-            'Scriptorium - Reinitialisez votre mot de passe',
-            "reinitialisation",
-            [
+        $email = (new TemplatedEmail())
+            ->from('webmaster@scriptorium.com')
+            ->to($email)
+            ->subject('Scriptorium - Reinitialisez votre mot de passe')
+            ->htmlTemplate("api/mail/reinitialisation.html.twig")
+            ->context([
                 'user' => $user,
                 'token' => $token,
                 'link' => $activationLink
 
-            ]
-        );
+            ]);
+
+        $mailer->send($email);
 
         return $this->json(
             ["success" => "Le mail de réinitialisation à bien été renvoyé"],
             201,
             []
         );
+    }
+
+
+    /**
+     * @Route("api/reset/form/{token}", name="app_reset_password_form")
+     */
+    public function PasswordUpdate(Request $request, UserPasswordHasherInterface $passwordHasher, UserRepository $userRepository, TokenRepository $tokenRepository, EntityManagerInterface $manager)
+    {
+        $token = $request->get('token');
+        $email = $request->getContent();
+        $data = json_decode($email, true);
+        $tokenEntity = $tokenRepository->findOneBy(['token' => $token]);
+        $user = $tokenRepository->findOneBy(['token' => $token])->getUser();
+        
+        // dd($tokenEntity);
+
+        $form = $this->createForm(ResetPasswordType::class);
+        $form->handleRequest($request);
+        
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+
+            if ($form->get('password')->getData() !== null) {
+                // avant de sauvegarder, on hash le mot de passe
+                $hashedPassword = $passwordHasher->hashPassword($user, $form->get('password')->getData());
+
+                // on le met à jour dans le User
+                $user->setPassword($hashedPassword);
+                $manager->remove($tokenEntity);
+                //! faire un return vers une page front une fois le mdp modifié et voir tache cron pour effacer les tokens trop vieux
+            }
+            // sinon, le mot passe d'origine est conservé
+            $userRepository->add($user, true);
+            
+        }
+        return $this->renderForm('/forms/reset_password.html.twig', [
+            'form' => $form,
+            'user' => $user
+        ]);
+
     }
 }

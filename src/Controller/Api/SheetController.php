@@ -95,7 +95,7 @@ class SheetController extends AbstractController
 
         // ->get('value') pour recuperer la valeur du cache
         $jsonContent = $dataSheet->get('value');
-        dd($dataSheet);
+        // dd($dataSheet);
         // On deserialise le contenu du cache
         $result = $checker->serializeValidation($jsonContent, Sheet::class);
             
