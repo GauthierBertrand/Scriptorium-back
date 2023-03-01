@@ -1,0 +1,14 @@
+framework:
+    rate_limiter:
+      inscription_api:
+        policy: 'sliding_window'
+        limit: 5
+        interval: '2 minutes'
+      generatePdf_api:
+        policy: 'sliding_window'
+        limit: 5
+        interval: '2 minutes'
+      modifyPassword_api:
+        policy: 'sliding_window'
+        limit: 5
+        interval: '2 minutes'

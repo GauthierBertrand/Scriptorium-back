@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Utils\RateLimiterService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,8 +21,9 @@ class UserController extends AbstractController
      * Permet la modification du mot de passe d'un utilisateur recuperé via son token JWT
      * @Route("/password", name="app_user_modify_password", methods="PATCH")
      */
-    public function modifyPassword(Request $request, TokenStorageInterface $tokenStorage, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator, EntityManagerInterface $manager): JsonResponse
+    public function modifyPassword(Request $request, TokenStorageInterface $tokenStorage, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator, EntityManagerInterface $manager, RateLimiterService $rateLimiter): JsonResponse
     {
+        $rateLimiter->limit($request);
         // Decode de content Request and return an array with keys
         $passwords = json_decode($request->getContent(), true);
 

@@ -38,6 +38,9 @@ security:
                 check_path: login
                 always_use_default_target_path: true
                 default_target_path: admin
+            login_throttling:
+                max_attempts: 3
+                interval: "15 minutes"
             logout: 
                 path: logout
                 target: login

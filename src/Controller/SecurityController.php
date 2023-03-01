@@ -7,10 +7,11 @@ use App\Entity\Token;
 use App\Utils\MailService;
 use App\Utils\CheckSerializer;
 use Doctrine\ORM\EntityManager;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use App\Utils\RateLimiterService;
 use Symfony\Component\Mime\Email;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,8 +33,10 @@ class SecurityController extends AbstractController
      * @Route("/inscription", name="app_security_inscription")
      * @return JsonResponse
      */
-    public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator): JsonResponse
+    public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator, RateLimiterService $rateLimiter): JsonResponse
     {
+        $rateLimiter->limit($request);
+
         $userDatas = $request->getContent();
 
         $result = $checker->serializeValidation($userDatas, User::class);
