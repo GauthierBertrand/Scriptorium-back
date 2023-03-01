@@ -16,16 +16,14 @@ class RateLimiterService
     //Each one take the name of the route function to ratelimit with ApiLimiter suffixe
     //One variable for one config in the config file rate_limiter.yaml 
     private $inscriptionApiLimiter;
-    private $loginApiLimiter;
     private $generatePdfApiLimiter;
     private $modifyPasswordApiLimiter;
 
     private $limiter;   
 
-    public function __construct(RateLimiterFactory $inscriptionApiLimiter, RateLimiterFactory $loginApiLimiter, RateLimiterFactory $generatePdfApiLimiter, RateLimiterFactory $modifyPasswordApiLimiter)
+    public function __construct(RateLimiterFactory $inscriptionApiLimiter, RateLimiterFactory $generatePdfApiLimiter, RateLimiterFactory $modifyPasswordApiLimiter)
     {
         $this->inscriptionApiLimiter=$inscriptionApiLimiter;
-        $this->loginApiLimiter=$loginApiLimiter;
         $this->generatePdfApiLimiter=$generatePdfApiLimiter;
         $this->modifyPasswordApiLimiter=$modifyPasswordApiLimiter;
        
