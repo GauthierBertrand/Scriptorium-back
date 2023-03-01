@@ -7,6 +7,7 @@ use App\Entity\Token;
 use App\Utils\MailService;
 use App\Utils\CheckSerializer;
 use Doctrine\ORM\EntityManager;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mime\Email;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -31,7 +32,7 @@ class SecurityController extends AbstractController
      * @Route("/inscription", name="app_security_inscription")
      * @return JsonResponse
      */
-    public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager, MailService $mail): JsonResponse
+    public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator): JsonResponse
     {
         $userDatas = $request->getContent();
 
@@ -63,8 +64,8 @@ class SecurityController extends AbstractController
 
         $result->setPassword($passwordHasher->hashPassword($result, $result->getPassword()));
 
-        // On génère un token aléatoire de 32 caractères
-        $token = bin2hex(random_bytes(16));
+        // On génère un token
+        $token = $tokenGenerator->generateToken();
 
         // On créé une nouvelle instance de l'entité Token et on la lie à l'utilisateur
         $tokenEntity = new Token();
@@ -80,16 +81,17 @@ class SecurityController extends AbstractController
         $activationLink = $this->generateUrl('app_security_activation', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
 
         //J'injecte mon service d'envoi de mail et j'appel mon objet mail
-        $mail->send(
-            'webmaster@scriptorium.com',
-            $result->getEmail(),
-            'Veuillez activer votre compte Scriptorium',
-            "validation",
-            [
+        $email = (new TemplatedEmail())
+            ->from('webmaster@scriptorium.com')
+            ->to($result->getEmail())
+            ->subject('Veuillez activer votre compte Scriptorium')
+            ->htmlTemplate("api/mail/validation.html.twig")
+            ->context([
                 'user' => $result,
                 'link' => $activationLink
-            ]
-        );
+            ]);
+
+            $mailer->send($email);
 
         return $this->json(
             ["confirmation" => "Le compte à bien été créé et un email de validation envoyé."],
@@ -139,21 +141,21 @@ class SecurityController extends AbstractController
      * @Route("/api/resend-activation", name="app_resend_activation_link")
      * @return Response
      */
-    public function resendActivation(EntityManagerInterface $manager, MailService $mail, TokenStorageInterface $tokenInterface): Response
+    public function resendActivation(EntityManagerInterface $manager, MailService $mail, MailerInterface $mailer, TokenStorageInterface $tokenInterface): Response
     {
         $userToken = $tokenInterface->getToken();
-
-        if (!$userToken) {
-            return $this->json(
-                ["erreur" => "L\utilisateur doit etre connecté"],
-                403,
-                []
-            );
-        }
 
         $user = $userToken->getUser();
 
         $mailToken = $manager->getRepository(Token::class)->findOneBy(['user' => $user]);
+
+        if($mailToken == null){
+            return $this->json(
+                ["erreur" => "Aucun token pour ce compte"],
+                404,
+                []
+            );
+            }
 
         //On recréé un lien avec le token de l'utilisateur
         $activationLink = $this->generateUrl('app_security_activation', ['token' => $mailToken->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
@@ -197,7 +199,7 @@ class SecurityController extends AbstractController
     /**
      * @Route("api/reset-password", name="app_reset_password")
      */
-    public function request(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, MailService $mail, TokenGeneratorInterface $tokenGenerator): Response
+    public function request(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, MailService $mail, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator): Response
     {
         $email = $request->getContent();
         $data = json_decode($email, true);
