@@ -258,7 +258,7 @@ class SecurityController extends AbstractController
 
 
     /**
-     * @Route("api/reset/form/{token}", name="app_reset_password_form")
+     * @Route("reset-password/{token}", name="app_reset_password_form")
      */
     public function PasswordUpdate(Request $request, UserPasswordHasherInterface $passwordHasher, UserRepository $userRepository, TokenRepository $tokenRepository, EntityManagerInterface $manager)
     {
@@ -268,14 +268,10 @@ class SecurityController extends AbstractController
         $tokenEntity = $tokenRepository->findOneBy(['token' => $token]);
         $user = $tokenRepository->findOneBy(['token' => $token])->getUser();
         
-        // dd($tokenEntity);
-
         $form = $this->createForm(ResetPasswordType::class);
         $form->handleRequest($request);
-        
 
         if ($form->isSubmitted() && $form->isValid()) {
-
 
             if ($form->get('password')->getData() !== null) {
                 // avant de sauvegarder, on hash le mot de passe

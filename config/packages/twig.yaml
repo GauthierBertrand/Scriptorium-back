@@ -1,5 +1,8 @@
 twig:
     default_path: '%kernel.project_dir%/templates'
+    # https://symfony.com/doc/5.4/form/form_themes.html#applying-themes-to-all-forms
+    form_themes: ['bootstrap_5_layout.html.twig']
+
 
 when@test:
     twig:

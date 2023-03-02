@@ -1,0 +1,147 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Chroniques oubliées
+{% endblock %}
+
+{% block CSS %}
+	{# {{ encore_entry_link_tags('app') }} #}
+	<style>
+		/* CSS pour la fiche de personnage */
+		bodypdf {
+			font-family: Arial, sans-serif;
+			font-size: 14px;
+		}
+
+		h1 {
+			text-align: center;
+			font-size: 28px;
+			margin: 20px 0;
+		}
+
+		.section {
+			margin-bottom: 20px;
+		}
+
+		.section-title {
+			font-size: 20px;
+			font-weight: bold;
+			margin-bottom: 10px;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			margin-bottom: 20px;
+		}
+
+		table,
+		th,
+		td {
+			border: 1px solid #ccc;
+		}
+
+		th,
+		td {
+			padding: 5px;
+			text-align: left;
+		}
+
+		.column {
+			float: left;
+			width: 50%;
+			padding: 0 20px;
+		}
+
+		.clear {
+			clear: both;
+		}
+
+
+		.portrait {
+			float: left;
+			margin-right: 20px;
+			border: 1px solid #ccc;
+			width: 150px;
+			height: 200px;
+			background-color: #fff;
+		}
+
+		.name {
+			font-size: 24px;
+			font-weight: bold;
+		}
+
+		.attribute {
+			font-weight: bold;
+		}
+	</style>
+
+	{% endblock %}
+
+	{% block body %}
+		<h1>Chroniques oubliées</h1>
+
+		<div
+			class="section">
+			{# <img src="{{character.picture}}" class="portrait"></img> #}
+			<div class="column">
+				<div class="name">Nom du personnage</div>
+
+				<div class="name">{{character.characterName}}</div>
+				<table>
+					<tr>
+						<th>Niveau</th>
+						<td>{{character.level}}</td>
+					</tr>
+					<tr>
+						<th>Classe</th>
+						<td>{{character.classe.name}}</td>
+					</tr>
+					<tr>
+						<th>Race</th>
+						<td>{{character.raceName}}</td>
+					</tr>
+				</table>
+			</div>
+			<div class="clear"></div>
+		</div>
+
+		<div class="section">
+			<div class="column">
+				<div class="section-title">Caractéristiques</div>
+				<table>
+					<tr>
+						<th>Force</th>
+						<td class="attribute">{{character.stats.Force}}</td>
+					</tr>
+					<tr>
+						<th>Dextérité</th>
+						<td class="attribute">{{character.stats.Dextérité}}</td>
+					</tr>
+					<tr>
+						<th>Constitution</th>
+						<td class="attribute">{{character.stats.Constitution}}</td>
+					</tr>
+					<tr>
+						<th>Intelligence</th>
+						<td class="attribute">{{character.stats.Intelligence}}</td>
+					</tr>
+					<tr>
+						<th>Sagesse</th>
+						<td class="attribute">{{character.stats.Sagesse}}</td>
+					</tr>
+					<tr>
+						<th>Charisme</th>
+						<td class="attribute">{{character.stats.Charisme}}</td>
+					</tr>
+				</table>
+			</div>
+
+			<div class="column">
+				<div class="section-title">Capacités</div>
+				<table>
+					<tr>
+
+						<th></th>
+					</tr>
+				{% endblock %}
