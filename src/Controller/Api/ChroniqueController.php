@@ -41,7 +41,6 @@ class ChroniqueController extends AbstractController
 
             return $classeRepository->getClassesAndEquipments();
         });
-
         return $this->json(
             ['classes' => $classes],
             Response::HTTP_OK,

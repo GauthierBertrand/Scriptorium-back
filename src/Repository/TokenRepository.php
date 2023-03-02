@@ -39,6 +39,34 @@ class TokenRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * Remove old verification tokens (1 day old) from bdd
+     *
+     * @return void
+     */
+    public function removeOldTokens()
+    {
+        //SQL query
+        $sqlQuery = "DELETE FROM token
+        WHERE created_at < CURRENT_TIMESTAMP()-INTERVAL 1 DAY ";
+
+        //Execute query and stock return in statement
+        $statement = $this->getEntityManager()->getConnection()->executeQuery($sqlQuery);
+
+        //Number of token deleted
+        $deletedTokens = $statement->rowCount();
+
+        //Message to deal at the end of execution
+        if($deletedTokens>1){
+            $message= $deletedTokens.'tokens are deleted.';
+        }elseif ($deletedTokens===1) {
+            $message=$deletedTokens.'token is deleted.';
+        }else {
+            $message='No token to delete';
+        }
+        return $message;
+    }
+
 //    /**
 //     * @return Token[] Returns an array of Token objects
 //     */
