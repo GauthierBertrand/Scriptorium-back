@@ -8,7 +8,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class GroupVoter extends Voter
 {
-    public const DELETE = 'DELETE_USER';
+    public const DELETE = 'DELETE_BY_GM';
     public const ADD = 'ADD_PLAYER';
 
     protected function supports(string $attribute, $subject): bool
@@ -35,7 +35,7 @@ class GroupVoter extends Voter
                 }
                 break;
             case self::ADD:
-                if ($user !== $subject->getGameMaster() AND !$subject->getPlayers()->contains($user)) {
+                if ($user !== $subject->getGameMaster() AND !$subject->getPlayers->contains($user)) {
                     return true;
                 }
                 break;

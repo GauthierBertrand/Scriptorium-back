@@ -22,7 +22,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * 
+     * @Groups({"group_get_information"})
      */
     private $id;
 
@@ -68,6 +68,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *  minMessage = "Le champ pseudo doit être de '{{ limit }}' caractères minimum.",
      *  maxMessage = "Le champ pseudo doit être de '{{ limit }}' caractères maximum."
      * )
+     * @Groups({"group_get_information"})
      */
     private $pseudo;
 

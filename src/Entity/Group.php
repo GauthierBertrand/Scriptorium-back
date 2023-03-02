@@ -6,6 +6,8 @@ use App\Repository\GroupRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraint as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=GroupRepository::class)
@@ -17,11 +19,20 @@ class Group
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"group_get_information"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=64)
+     * @Groups({"group_get_information"})
+     * @Assert\NotBlank(
+     *  message = "Le groupe doit avoir un nom."
+     * )
+     * @Assert\Length(
+     *  max = 64,
+     *  maxMessage = "Le nom du groupe ne doit pas dépasser {{ limit }} caractères."
+     * )
      */
     private $name;
     
@@ -33,11 +44,13 @@ class Group
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, inversedBy="playerGroups")
+     * @Groups({"group_get_information"})
      */
     private $players;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"group_get_information"})
      */
     private $code_register;
 

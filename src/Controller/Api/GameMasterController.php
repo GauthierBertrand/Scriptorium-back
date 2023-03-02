@@ -52,8 +52,18 @@ class GameMasterController extends AbstractController
     /**
      * @Route("/groups", name="app_api_game_master_get", methods="GET")
      */
-    public function getGroups() {
+    public function getGroups(TokenStorageInterface $tokenStorage) 
+    {
+        $user = $tokenStorage->getToken()->getUser();
 
+        $groups = $user->getGroups();
+        
+        return $this->json(
+            ["groups" => $groups],
+            200,
+            [],
+            ["groups" => "group_get_information"]
+        );
     }
 
     /**
@@ -159,7 +169,7 @@ class GameMasterController extends AbstractController
             );
         }
 
-        $this->denyAccessUnlessGranted("DELETE_USER", $group);
+        $this->denyAccessUnlessGranted("DELETE_BY_GM", $group);
 
         $jsonContent = json_decode($request->getContent(), true);
 
@@ -179,6 +189,14 @@ class GameMasterController extends AbstractController
             );
         }
 
+        if (!$group->getPlayers()->contains($user)) {
+            return $this->json(
+                ["error" => "Cet utilisateur n'est pas dans ce groupe."],
+                404,
+                []
+            );
+        }
+
         $group->removePlayer($user);
 
         $manager->flush();
@@ -189,5 +207,30 @@ class GameMasterController extends AbstractController
             []
         );
     }   
+
+    /**
+     * @Route("/groups/{id}/delete", name="app_api_group_delete", methods="DELETE")
+     */
+    public function deleteGroup(Group $group = null, EntityManagerInterface $manager) 
+    {
+        if (empty($group)) {
+            return $this->json(
+                ["error" => "Ce group n'existe pas!"],
+                404,
+                []
+            );
+        }
+
+        $this->denyAccessUnlessGranted("DELETE_BY_GM", $group);
+
+        $manager->remove($group);
+        $manager->flush();
+
+        return $this->json(
+            ["confirmation" => "Le group a bien été supprimé"],
+            200,
+            []
+        );
+    }
 }
     
