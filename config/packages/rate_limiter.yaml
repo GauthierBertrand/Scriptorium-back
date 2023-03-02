@@ -12,3 +12,7 @@ framework:
         policy: 'sliding_window'
         limit: 5
         interval: '2 minutes'
+      login_api:
+        policy: 'sliding_window'
+        limit: 5
+        interval: '2 minutes'
