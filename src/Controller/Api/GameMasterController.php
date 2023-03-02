@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class GameMasterController extends AbstractController
 {
     /**
-     * @Route("/users", name="app_api_game_master_upgrade")
+     * @Route("/users", name="app_api_game_master_upgrade", methods="PATCH")
      */
     public function becomeGameMaster(EntityManagerInterface $manager, TokenStorageInterface $tokenStorage): JsonResponse
     {
