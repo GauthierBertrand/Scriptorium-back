@@ -53,3 +53,7 @@
 |--|--|--|--|
 |/admin|GET|Affiche l'interface principal du Back-Office|ROLE_ADMIN|
 
+### Login JWT
+|endpoints|methods|ressources|access|
+|--|--|--|--|
+|/api/login_check|POST|Permet de se connecter en recevant un token JWT|ROLE_ADMIN|
