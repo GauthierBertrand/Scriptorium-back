@@ -83,7 +83,8 @@ class SheetController extends AbstractController
         // dd($cacheKey);
 
         $dataSheet = $cache->getItem($cacheKey);
-
+        // dd($dataSheet);
+        
         // On verifie si le cache n'est pas vide (on renvoie une erreur 400 s'il est vide)
         if (!$dataSheet->isHit()) {
             return $this->json(
