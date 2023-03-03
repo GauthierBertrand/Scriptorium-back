@@ -2,6 +2,7 @@
 
 namespace App\Utils;
 
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 
@@ -30,6 +31,8 @@ class CheckSerializer {
 
             return $entity;
         } catch (NotNormalizableValueException $exception) {
+            return $exception->getMessage();
+        } catch (NotEncodableValueException $exception) {
             return $exception->getMessage();
         }
     }

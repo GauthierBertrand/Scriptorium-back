@@ -33,7 +33,7 @@ class SecurityController extends AbstractController
 {
     /**
      * Inscription de l'utilisateur en utilisant les données envoyées au format JSON
-     * @Route("/inscription", name="app_security_inscription")
+     * @Route("/inscription", name="app_security_inscription", methods="POST")
      * @return JsonResponse
      */
     public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator, RateLimiterService $rateLimiter): JsonResponse
@@ -108,7 +108,7 @@ class SecurityController extends AbstractController
 
     /**
      * Activation du compte de l'utilisateur en utilisant le token envoyé par email
-     * @Route("/api/activation/{token}", name="app_security_activation")
+     * @Route("/activation/{token}", name="app_security_activation", methods="GET")
      * @return Response
      */
     public function activation($token, EntityManagerInterface $manager): Response
@@ -124,8 +124,6 @@ class SecurityController extends AbstractController
                 []
             );
         }
-
-        $this->denyAccessUnlessGranted('ACCOUNT_VALIDATION', $tokenEntity);
 
         //Si le token correspond on recup le user et on passe isVerified à true
         $actualUser = $tokenEntity->getUser();
@@ -144,7 +142,7 @@ class SecurityController extends AbstractController
 
     /**
      * Renvoi du lien d'activation du compte
-     * @Route("/api/resend-activation", name="app_resend_activation_link")
+     * @Route("/api/resend-activation", name="app_resend_activation_link", methods="GET")
      * @return Response
      */
     public function resendActivation(EntityManagerInterface $manager, MailerInterface $mailer, TokenStorageInterface $tokenInterface): Response
@@ -189,7 +187,7 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @Route("/login", name="login")
+     * @Route("/login", name="login", methods={"GET", "POST"})
      */
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
@@ -205,7 +203,7 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @Route("api/reset-password", name="app_reset_password")
+     * @Route("/reset-password", name="app_reset_password", methods="GET")
      */
     public function ResetMailSend(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator): Response
     {
@@ -259,7 +257,7 @@ class SecurityController extends AbstractController
 
 
     /**
-     * @Route("reset-password/{token}", name="app_reset_password_form")
+     * @Route("/reset-password/{token}", name="app_reset_password_form", methods={"GET", "POST"})
      */
     public function PasswordUpdate(Request $request, UserPasswordHasherInterface $passwordHasher, UserRepository $userRepository, TokenRepository $tokenRepository, EntityManagerInterface $manager)
     {

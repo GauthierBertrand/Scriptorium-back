@@ -165,6 +165,11 @@ class Sheet
      */
     private $racialAbility;
 
+    /**
+     * @ORM\Column(type="string", length=32, nullable=true)
+     */
+    private $eye;
+
     public function __construct()
     {
         $this->way_abilities = new ArrayCollection();
@@ -384,6 +389,18 @@ class Sheet
     public function setEncodeStats(string $stats) 
     {
         $this->stats = json_decode($stats, true);
+        return $this;
+    }
+
+    public function getEye(): ?string
+    {
+        return $this->eye;
+    }
+
+    public function setEye(string $eye): self
+    {
+        $this->eye = $eye;
+
         return $this;
     }
 }

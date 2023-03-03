@@ -3,7 +3,6 @@
 namespace App\Controller\Api;
 
 use App\Entity\Sheet;
-use App\Utils\PdfService;
 use App\Utils\CheckSerializer;
 use App\Utils\RateLimiterService;
 use App\Repository\SheetRepository;
@@ -14,14 +13,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PdfController extends AbstractController
 {
     /**
-     * @Route("/api/generator", name="app_api_pdf")
+     * @Route("/api/generator", name="app_api_pdf", methods="POST")
      */
-    public function generatePdf(PdfService $pdf, CheckSerializer $checker, Request $request, RateLimiterService $rateLimiter): JsonResponse
+    public function generatePdf(\Knp\Snappy\Pdf $knpSnappyImage, CheckSerializer $checker, Request $request, RateLimiterService $rateLimiter, ValidatorInterface $validator): PdfResponse
     {
         //$rateLimiter->limit($request);
         // On instencie FilesystemAdapter pour gérer le cache
@@ -56,51 +57,63 @@ class PdfController extends AbstractController
                 []
             );
         }
+
+        $errors = $validator->validate($result);
+
+        if (count($errors) > 0) {
+            foreach($errors as $error) {
+                $errorJson[$error->getPropertyPath()] = $error->getMessage();
+            }
+
+            return $this->json("ok");
+        }
         
         //On stock le template twig avec le contenu de jsonContent (Request) dans $html
-        $html = $this->render('api/pdf/fiche.html.twig', [
+        $html = $this->renderView('api/pdf/fiche.html.twig', [
             'pdfContent' => $result,
         ]);
-        
-        // On envoie le template twig à la methode de DomPdf dans le pdfService
-        $pdf->showPdf($html);
-
-        //On retourne une confirmation en json
-        return $this->json(
-            ['confirmation' => 'pdf generé'],
-            Response::HTTP_CREATED,
-            []
+      
+        // $html = $this->renderView('api/pdf/test.html.twig');
+        return new PdfResponse(
+            $knpSnappyImage->getOutputFromHtml($html),
+            'file.pdf'
         );
+        //On retourne une confirmation en json
+        // return $this->json(
+        //     ['confirmation' => 'pdf generé'],
+        //     Response::HTTP_CREATED,
+        //     []
+        // );
     }
 
             /**
      * Get a saved sheet in pdf
      * @Route("/api/characters/sheet/{id<\d+>}", name="sheets_get_pdf")
      */
-    public function getSavedSheet(PdfService $pdf, EntityManagerInterface $entityManager, CheckSerializer $checker, SheetRepository $sheet)
-    {
-        $sheetContent = $sheet->findAll();
-        $character = $sheetContent[0];
-        // $wayAbilities = $character->getWayAbilities()->getValues();
-        // $classe = $character->getClasse()->getName();
-        // $raciaAlbility = $character->getRacialAbility()->getName();
-        // $raciaAlbilityTraits = $character->getRacialAbility()->getTraits();
+    // public function getSavedSheet(PdfService $pdf, EntityManagerInterface $entityManager, CheckSerializer $checker, SheetRepository $sheet)
+    // {
+    //     $sheetContent = $sheet->findAll();
+    //     $character = $sheetContent[0];
+    //     // $wayAbilities = $character->getWayAbilities()->getValues();
+    //     // $classe = $character->getClasse()->getName();
+    //     // $raciaAlbility = $character->getRacialAbility()->getName();
+    //     // $raciaAlbilityTraits = $character->getRacialAbility()->getTraits();
 
 
-        // dd($wayAbilities);
+    //     // dd($wayAbilities);
 
-        $html =  $this->render('/api/pdf/saved_sheet.html.twig', [
-            'character' => $sheetContent[0],
-        ]);
+    //     $html =  $this->render('/api/pdf/saved_sheet.html.twig', [
+    //         'character' => $sheetContent[0],
+    //     ]);
 
-        $pdf->showPdf($html);
+    //     $pdf->showPdf($html);
 
-        return $this->json(
-            ['confirmation' => 'pdf generé'],
-            Response::HTTP_CREATED,
-            []
-        );
+    //     return $this->json(
+    //         ['confirmation' => 'pdf generé'],
+    //         Response::HTTP_CREATED,
+    //         []
+    //     );
 
-    }
+    // }
 
 }
