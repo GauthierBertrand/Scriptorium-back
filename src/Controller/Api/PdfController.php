@@ -3,8 +3,6 @@
 namespace App\Controller\Api;
 
 use App\Entity\Sheet;
-use App\Repository\TokenRepository;
-use App\Utils\CheckSerializer;
 use App\Utils\PdfService;
 use App\Utils\RateLimiterService;
 use Symfony\Contracts\Cache\ItemInterface;
