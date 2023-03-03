@@ -22,7 +22,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * 
+     * @Groups({"group_get_information"})
      */
     private $id;
 
@@ -68,6 +68,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *  minMessage = "Le champ pseudo doit être de '{{ limit }}' caractères minimum.",
      *  maxMessage = "Le champ pseudo doit être de '{{ limit }}' caractères maximum."
      * )
+     * @Groups({"group_get_information"})
      */
     private $pseudo;
 
@@ -86,11 +87,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $is_verified = false;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Group::class, mappedBy="game_master")
+     */
+    private $groups;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Group::class, mappedBy="players")
+     */
+    private $playerGroups;
+
 
     public function __construct()
     {
         $this->sheets = new ArrayCollection();
         $this->tokens = new ArrayCollection();
+        $this->groups = new ArrayCollection();
+        $this->playerGroups = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -275,6 +288,63 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $is_verified): self
     {
         $this->is_verified = $is_verified;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Group>
+     */
+    public function getGroups(): Collection
+    {
+        return $this->groups;
+    }
+
+    public function addGroup(Group $group): self
+    {
+        if (!$this->groups->contains($group)) {
+            $this->groups[] = $group;
+            $group->setGameMaster($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGroup(Group $group): self
+    {
+        if ($this->groups->removeElement($group)) {
+            // set the owning side to null (unless already changed)
+            if ($group->getGameMaster() === $this) {
+                $group->setGameMaster(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Group>
+     */
+    public function getPlayerGroups(): Collection
+    {
+        return $this->playerGroups;
+    }
+
+    public function addPlayerGroup(Group $playerGroup): self
+    {
+        if (!$this->playerGroups->contains($playerGroup)) {
+            $this->playerGroups[] = $playerGroup;
+            $playerGroup->addPlayer($this);
+        }
+
+        return $this;
+    }
+
+    public function removePlayerGroup(Group $playerGroup): self
+    {
+        if ($this->playerGroups->removeElement($playerGroup)) {
+            $playerGroup->removePlayer($this);
+        }
 
         return $this;
     }

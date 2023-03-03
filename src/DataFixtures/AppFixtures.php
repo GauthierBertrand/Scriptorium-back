@@ -3,24 +3,27 @@ namespace App\DataFixtures;
 
 use App\Entity\Classe;
 use App\Entity\ClasseEquipment;
-use App\Entity\ClasseStat;
 use App\Entity\Equipment;
 use App\Entity\Race;
 use App\Entity\RacialAbility;
 use App\Entity\Religion;
 use App\Entity\Stat;
 use App\Entity\Way;
+use App\Entity\User;
 use App\Entity\WayAbility;
 use App\Utils\DataChronique;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
     private $datas;
+    private $hasher;
 
-    public function __construct(DataChronique $dataChronique) {
+    public function __construct(DataChronique $dataChronique, UserPasswordHasherInterface $passwordHasher) {
         $this->datas = $dataChronique;
+        $this->hasher = $passwordHasher;
     }
 
     public function load(ObjectManager $manager): void
@@ -173,6 +176,29 @@ class AppFixtures extends Fixture
             ->setAlignment($religion[2]);
 
             $manager->persist($religionEntity);
+        }
+
+        $roles = ["ROLE_GAME_MASTER", "ROLE_ADMIN"];
+        $userName = ["freir", "baldur"];
+
+        for($i = 0; $i < 3; $i++) {
+            $user = new User();
+
+            if ($i === 0) {
+                $user->setPseudo("Odin")
+                    ->setPassword($this->hasher->hashPassword($user, "odinodin"))
+                    ->setEmail("odin@gmail.com")
+                ;
+                $manager->persist($user);
+                continue;
+            }
+
+            $user->setPseudo(ucfirst($userName[$i-1]))
+                ->setPassword($this->hasher->hashPassword($user, $userName[$i-1] . $userName[$i-1]))
+                ->setEmail($userName[$i-1] . "@gmail.com")
+                ->setRoles($roles);
+            
+            $manager->persist($user);
         }
 
         $manager->flush();

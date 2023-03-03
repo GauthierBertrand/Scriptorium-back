@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20230301093626 extends AbstractMigration
+final class Version20230301131843 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -23,6 +23,8 @@ final class Version20230301093626 extends AbstractMigration
         $this->addSql('CREATE TABLE classe (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(64) NOT NULL, description LONGTEXT NOT NULL, picture VARCHAR(255) NOT NULL, hit_die INT NOT NULL, stats LONGTEXT NOT NULL COMMENT \'(DC2Type:json)\', PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE classe_equipment (id INT AUTO_INCREMENT NOT NULL, classe_id INT NOT NULL, equipment_id INT NOT NULL, number INT NOT NULL, INDEX IDX_E26C95A48F5EA509 (classe_id), INDEX IDX_E26C95A4517FE9FE (equipment_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE equipment (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(64) NOT NULL, description LONGTEXT DEFAULT NULL, damage LONGTEXT DEFAULT NULL COMMENT \'(DC2Type:array)\', attack_type VARCHAR(32) DEFAULT NULL, hand INT DEFAULT NULL, distance INT DEFAULT NULL, bonus LONGTEXT DEFAULT NULL COMMENT \'(DC2Type:json)\', PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE `group` (id INT AUTO_INCREMENT NOT NULL, game_master_id INT NOT NULL, name VARCHAR(64) NOT NULL, code_register VARCHAR(255) NOT NULL, INDEX IDX_6DC044C5C1151A13 (game_master_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE group_user (group_id INT NOT NULL, user_id INT NOT NULL, INDEX IDX_A4C98D39FE54D947 (group_id), INDEX IDX_A4C98D39A76ED395 (user_id), PRIMARY KEY(group_id, user_id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE race (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(64) NOT NULL, description LONGTEXT NOT NULL, partiality LONGTEXT NOT NULL, stats LONGTEXT DEFAULT NULL COMMENT \'(DC2Type:json)\', picture_principal VARCHAR(255) NOT NULL, picture_male VARCHAR(255) NOT NULL, picture_female VARCHAR(255) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE racial_ability (id INT AUTO_INCREMENT NOT NULL, race_id INT NOT NULL, name VARCHAR(64) NOT NULL, description LONGTEXT NOT NULL, bonus LONGTEXT DEFAULT NULL COMMENT \'(DC2Type:json)\', traits LONGTEXT DEFAULT NULL COMMENT \'(DC2Type:array)\', INDEX IDX_DD5DD6676E59D40D (race_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE religion (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(64) NOT NULL, description LONGTEXT NOT NULL, alignment TINYINT(1) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
@@ -35,6 +37,9 @@ final class Version20230301093626 extends AbstractMigration
         $this->addSql('CREATE TABLE way_ability (id INT AUTO_INCREMENT NOT NULL, way_id INT NOT NULL, name VARCHAR(64) NOT NULL, description LONGTEXT NOT NULL, limited TINYINT(1) NOT NULL, bonus LONGTEXT DEFAULT NULL COMMENT \'(DC2Type:json)\', traits LONGTEXT DEFAULT NULL COMMENT \'(DC2Type:array)\', cost INT NOT NULL, level INT NOT NULL, INDEX IDX_FA1E3C748C803113 (way_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('ALTER TABLE classe_equipment ADD CONSTRAINT FK_E26C95A48F5EA509 FOREIGN KEY (classe_id) REFERENCES classe (id)');
         $this->addSql('ALTER TABLE classe_equipment ADD CONSTRAINT FK_E26C95A4517FE9FE FOREIGN KEY (equipment_id) REFERENCES equipment (id)');
+        $this->addSql('ALTER TABLE `group` ADD CONSTRAINT FK_6DC044C5C1151A13 FOREIGN KEY (game_master_id) REFERENCES user (id)');
+        $this->addSql('ALTER TABLE group_user ADD CONSTRAINT FK_A4C98D39FE54D947 FOREIGN KEY (group_id) REFERENCES `group` (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE group_user ADD CONSTRAINT FK_A4C98D39A76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE racial_ability ADD CONSTRAINT FK_DD5DD6676E59D40D FOREIGN KEY (race_id) REFERENCES race (id)');
         $this->addSql('ALTER TABLE sheet ADD CONSTRAINT FK_873C91E2A76ED395 FOREIGN KEY (user_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE sheet ADD CONSTRAINT FK_873C91E28F5EA509 FOREIGN KEY (classe_id) REFERENCES classe (id)');
@@ -51,6 +56,9 @@ final class Version20230301093626 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('ALTER TABLE classe_equipment DROP FOREIGN KEY FK_E26C95A48F5EA509');
         $this->addSql('ALTER TABLE classe_equipment DROP FOREIGN KEY FK_E26C95A4517FE9FE');
+        $this->addSql('ALTER TABLE `group` DROP FOREIGN KEY FK_6DC044C5C1151A13');
+        $this->addSql('ALTER TABLE group_user DROP FOREIGN KEY FK_A4C98D39FE54D947');
+        $this->addSql('ALTER TABLE group_user DROP FOREIGN KEY FK_A4C98D39A76ED395');
         $this->addSql('ALTER TABLE racial_ability DROP FOREIGN KEY FK_DD5DD6676E59D40D');
         $this->addSql('ALTER TABLE sheet DROP FOREIGN KEY FK_873C91E2A76ED395');
         $this->addSql('ALTER TABLE sheet DROP FOREIGN KEY FK_873C91E28F5EA509');
@@ -63,6 +71,8 @@ final class Version20230301093626 extends AbstractMigration
         $this->addSql('DROP TABLE classe');
         $this->addSql('DROP TABLE classe_equipment');
         $this->addSql('DROP TABLE equipment');
+        $this->addSql('DROP TABLE `group`');
+        $this->addSql('DROP TABLE group_user');
         $this->addSql('DROP TABLE race');
         $this->addSql('DROP TABLE racial_ability');
         $this->addSql('DROP TABLE religion');
