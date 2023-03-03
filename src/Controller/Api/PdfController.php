@@ -3,16 +3,18 @@
 namespace App\Controller\Api;
 
 use App\Entity\Sheet;
-use App\Utils\CheckSerializer;
 use App\Utils\PdfService;
+use App\Utils\CheckSerializer;
 use App\Utils\RateLimiterService;
+use App\Repository\SheetRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class PdfController extends AbstractController
 {
@@ -66,4 +68,35 @@ class PdfController extends AbstractController
             []
         );
     }
+
+            /**
+     * Get a saved sheet in pdf
+     * @Route("/api/characters/sheet/{id<\d+>}", name="sheets_get_pdf")
+     */
+    public function getSavedSheet(PdfService $pdf, EntityManagerInterface $entityManager, CheckSerializer $checker, SheetRepository $sheet)
+    {
+        $sheetContent = $sheet->findAll();
+        $character = $sheetContent[0];
+        // $wayAbilities = $character->getWayAbilities()->getValues();
+        // $classe = $character->getClasse()->getName();
+        // $raciaAlbility = $character->getRacialAbility()->getName();
+        // $raciaAlbilityTraits = $character->getRacialAbility()->getTraits();
+
+
+        // dd($wayAbilities);
+
+        $html =  $this->render('/api/pdf/saved_sheet.html.twig', [
+            'character' => $sheetContent[0],
+        ]);
+
+        $pdf->showPdf($html);
+
+        return $this->json(
+            ['confirmation' => 'pdf generé'],
+            Response::HTTP_CREATED,
+            []
+        );
+
+    }
+
 }
