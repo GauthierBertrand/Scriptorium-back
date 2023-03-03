@@ -108,7 +108,7 @@ class SecurityController extends AbstractController
 
     /**
      * Activation du compte de l'utilisateur en utilisant le token envoyé par email
-     * @Route("/activation/{token}", name="app_security_activation", methods="GET")
+     * @Route("/activation/{token}", name="app_security_activation", methods="POST")
      * @return Response
      */
     public function activation($token, EntityManagerInterface $manager): Response

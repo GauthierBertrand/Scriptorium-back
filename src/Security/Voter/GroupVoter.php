@@ -35,7 +35,7 @@ class GroupVoter extends Voter
                 }
                 break;
             case self::ADD:
-                if ($user !== $subject->getGameMaster() AND !$subject->getPlayers->contains($user)) {
+                if ($user !== $subject->getGameMaster() AND !$subject->getPlayers()->contains($user)) {
                     return true;
                 }
                 break;

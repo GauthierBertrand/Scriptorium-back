@@ -78,42 +78,25 @@ class PdfController extends AbstractController
             $knpSnappyImage->getOutputFromHtml($html),
             'file.pdf'
         );
-        //On retourne une confirmation en json
-        // return $this->json(
-        //     ['confirmation' => 'pdf generé'],
-        //     Response::HTTP_CREATED,
-        //     []
-        // );
     }
 
-            /**
+    /**
      * Get a saved sheet in pdf
      * @Route("/api/characters/sheet/{id<\d+>}", name="sheets_get_pdf")
      */
-    // public function getSavedSheet(PdfService $pdf, EntityManagerInterface $entityManager, CheckSerializer $checker, SheetRepository $sheet)
-    // {
-    //     $sheetContent = $sheet->findAll();
-    //     $character = $sheetContent[0];
-    //     // $wayAbilities = $character->getWayAbilities()->getValues();
-    //     // $classe = $character->getClasse()->getName();
-    //     // $raciaAlbility = $character->getRacialAbility()->getName();
-    //     // $raciaAlbilityTraits = $character->getRacialAbility()->getTraits();
+    public function getSavedSheet($id, \Knp\Snappy\Pdf $knpSnappyImage, EntityManagerInterface $entityManager, SheetRepository $sheet): PdfResponse
+   {
+       $sheetContent = $sheet->getSavedSheet($id);
 
+       $html =  $this->render('/api/pdf/saved_sheet.html.twig', [
+           'character' => $sheetContent,
+       ]);
 
-    //     // dd($wayAbilities);
+       return new PdfResponse(
+        $knpSnappyImage->getOutputFromHtml($html),
+        'file.pdf'
+    );
 
-    //     $html =  $this->render('/api/pdf/saved_sheet.html.twig', [
-    //         'character' => $sheetContent[0],
-    //     ]);
-
-    //     $pdf->showPdf($html);
-
-    //     return $this->json(
-    //         ['confirmation' => 'pdf generé'],
-    //         Response::HTTP_CREATED,
-    //         []
-    //     );
-
-    // }
+   }
 
 }

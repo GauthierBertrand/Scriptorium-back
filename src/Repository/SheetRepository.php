@@ -52,6 +52,19 @@ class SheetRepository extends ServiceEntityRepository
         return $query->getResult();
     }
 
+    public function getSavedSheet($id)
+    {
+        $manager = $this->getEntityManager();
+    //SQL query
+    $dqlQuery = $manager->createQuery("SELECT sheet, classe, ways, way_abilities, racialAbility  FROM App\Entity\Sheet sheet JOIN sheet.classe classe JOIN sheet.way_abilities way_abilities JOIN classe.ways ways JOIN sheet.racialAbility racialAbility WHERE sheet.id = :id");
+
+    $dqlQuery->setParameter("id", $id);
+
+
+    return $dqlQuery->getSingleResult();
+}
+
+
 //    /**
 //     * @return Sheet[] Returns an array of Sheet objects
 //     */
