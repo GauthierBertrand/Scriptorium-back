@@ -18,22 +18,14 @@ class UserEntityListener {
         $this->manager = $manager;
     }
 
-    public function preUpdate(User $user, LifecycleEventArgs $event) 
+    public function hashPassword(User $user, LifecycleEventArgs $event) 
     {
-        $user = $event->getObject();
         $user->setPassword($this->hasher->hashPassword($user, $user->getPassword()));
-    }
 
-    public function prePersist(User $user, LifecycleEventArgs $event) 
-    {
-        $user = $event->getObject();
-        $user->setPassword($this->hasher->hashPassword($user, $user->getPassword()));
     }
 
     public function preRemove(User $user, LifecycleEventArgs $event)
     {
-        $user = $event->getObject();
-
         foreach($user->getSheets() as $sheet) {
             $this->manager->remove($sheet);
         }

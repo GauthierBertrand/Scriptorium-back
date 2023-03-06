@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @ORM\Entity(repositoryClass=GroupRepository::class)
@@ -35,7 +36,7 @@ class Group
      * )
      */
     private $name;
-    
+
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="groups")
      * @ORM\JoinColumn(nullable=false)
@@ -122,5 +123,27 @@ class Group
         $this->code_register = $code_register;
 
         return $this;
+    }
+
+    /**
+     * @Assert\Callback()
+     */
+    public static function validate($object, ExecutionContextInterface $context, $payload)
+    {
+        $game_master = $object->getGameMaster();
+
+        foreach ($game_master->getGroups() as $group) {
+            if (strtolower($group->getName()) === strtolower($object->getName())) {
+                
+                if ($group === $object) {
+                    continue;
+                }
+
+                $context->buildViolation("Ce nom est déjà pris.")
+                    ->atPath("name")
+                    ->addViolation();
+                break;
+            }    
+        }
     }
 }
