@@ -24,7 +24,8 @@ class PdfController extends AbstractController
      */
     public function generatePdf(\Knp\Snappy\Pdf $knpSnappyImage, CheckSerializer $checker, Request $request, RateLimiterService $rateLimiter, ValidatorInterface $validator): PdfResponse
     {
-        //$rateLimiter->limit($request);
+        // $rateLimiter->limit($request);
+
         // On instencie FilesystemAdapter pour gérer le cache
         $cache = new FilesystemAdapter();
 
@@ -44,10 +45,6 @@ class PdfController extends AbstractController
         });
         
         // On deserialize $jsonContent (Request) pour l'utiliser dans notre template twig
-        //!Avec les valeurs commentées ci dessous ça marche en navigateur
-        //!et insomnia alors qu'en dessous ça ne marche que pour insomnia
-        //$test = $cache->getItem('pdf_content_')->get('value');
-        //$result = $checker->serializeValidation($test, Sheet::class);
         $result = $checker->serializeValidation($jsonContent, Sheet::class);
         
         if (!$result instanceof Sheet) {
@@ -67,7 +64,7 @@ class PdfController extends AbstractController
 
             return $this->json("ok");
         }
-        
+        // dd($result);
         //On stock le template twig avec le contenu de jsonContent (Request) dans $html
         $html = $this->renderView('api/pdf/fiche.html.twig', [
             'pdfContent' => $result,
@@ -84,7 +81,7 @@ class PdfController extends AbstractController
      * Get a saved sheet in pdf
      * @Route("/api/characters/sheet/{id<\d+>}", name="sheets_get_pdf")
      */
-    public function getSavedSheet($id, \Knp\Snappy\Pdf $knpSnappyImage, EntityManagerInterface $entityManager, SheetRepository $sheet): PdfResponse
+    public function getSavedSheet($id, \Knp\Snappy\Pdf $knpSnappyImage, SheetRepository $sheet): PdfResponse
    {
        $sheetContent = $sheet->getSavedSheet($id);
 
