@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @Route("/api/user")
+ * @Route("/api/users")
  */
 class UserController extends AbstractController
 {
@@ -59,7 +59,6 @@ class UserController extends AbstractController
             }
 
             // ? On hash de nouveau le password après la verification du mot de passe au clair pour utiliser sans probleme la methode isPasswordValid
-            $user->setPassword($passwordHasher->hashPassword($user, $user->getPassword()));
 
             $manager->flush();
 
@@ -85,10 +84,6 @@ class UserController extends AbstractController
     {
         $token = $tokenStorage->getToken();
         $user = $token->getUser();
-
-        foreach ($user->getSheets() as $sheet) {
-            $manager->remove($sheet);
-        }
 
         $manager->remove($user);
         $manager->flush();

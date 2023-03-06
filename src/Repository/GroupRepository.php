@@ -59,27 +59,6 @@ class GroupRepository extends ServiceEntityRepository
         }
     }
 
-    public function findGroupByName($name) 
-    {
-        $manager = $this->getEntityManager();
-
-        $query = $manager->createQuery(
-            "SELECT g FROM App\Entity\Group g WHERE g.name = :name"
-        );
-
-        $query->setParameter("name", $name);
-
-        try {
-            $result = $query->getSingleResult();
-            return false;
-        } catch(NonUniqueResultException $exception) {
-            return false;
-        } catch(NoResultException $exception) {
-            return true;
-        }
-    }
-        
-
 //    /**
 //     * @return Group[] Returns an array of Group objects
 //     */

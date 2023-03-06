@@ -17,13 +17,12 @@ class UserCrudController extends AbstractCrudController
         return User::class;
     }
 
-    
     public function configureFields(string $pageName): iterable
     {
         return [
             IdField::new('id')->onlyOnIndex(),
             TextField::new('email'),
-            TextField::new('password')->setFormType(PasswordType::class),
+            TextField::new('password')->setFormType(PasswordType::class)->onlyOnForms(),
             TextField::new('pseudo'),
             ArrayField::new('roles'),
             BooleanField::new('is_verified')

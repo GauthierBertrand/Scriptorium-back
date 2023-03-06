@@ -85,18 +85,7 @@ class GameMasterController extends AbstractController
             );
         }
 
-        if ($groupRepository->findGroupByName($result->getName()) === false) {
-            return $this->json(
-                ["error" => "Ce nom existe déjà"],
-                404,
-                []
-            );
-        }
-
         $result->setGameMaster($user);
-        $code = $generator->generate($user);
-        $result->setCodeRegister($code);
-
         $errors = $validator->validate($result);
 
         if (count($errors) > 0) {
@@ -115,7 +104,7 @@ class GameMasterController extends AbstractController
         $manager->flush();
 
         return $this->json(
-            ["code" => $code],
+            ["code" => $result->getCodeRegister()],
             201,
             []
         );
@@ -130,7 +119,11 @@ class GameMasterController extends AbstractController
         $jsonContent = json_decode($request->getContent(), true);
   
         if (!isset($jsonContent["code_register"]) OR gettype($jsonContent["code_register"]) !== "string") {
-            return $this->json("nope");
+            return $this->json(
+                ["error" => "Vous devez indiquer un champ code_register valide."],
+                404,
+                []
+            );
         }
 
         $group = $groupRepository->findGroupByToken($jsonContent["code_register"]);
