@@ -37,5 +37,9 @@ class UserEntityListener {
         foreach($user->getSheets() as $sheet) {
             $this->manager->remove($sheet);
         }
+
+        foreach($user->getGroups() as $group) {
+            $this->manager->remove($group);
+        }
     }
 }
