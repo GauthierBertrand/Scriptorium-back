@@ -38,7 +38,6 @@ class Way
     /**
      * @ORM\OneToMany(targetEntity=WayAbility::class, mappedBy="way")
      * @Groups({"ways_get_collection"})
-     * @Groups({"races_get_collection"})
      */
     private $wayAbilities;
 

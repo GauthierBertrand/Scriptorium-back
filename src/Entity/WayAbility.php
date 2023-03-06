@@ -17,7 +17,7 @@ class WayAbility
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"races_get_collection"})
+     * @Groups({"ways_get_collection"})
      */
     private $id;
 
