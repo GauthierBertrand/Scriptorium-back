@@ -81,67 +81,112 @@
 	{% block body %}
 		<h1>Chroniques oubliées</h1>
 
-		<div
-			class="section">
-			<img src="{{character.picture}}" class="portrait"></img>
-			<div class="column">
-				<div class="name">Nom du personnage</div>
-
-				<div class="name">{{character.characterName}}</div>
-				<table>
-					<tr>
-						<th>Niveau</th>
-						<td>{{character.level}}</td>
-					</tr>
-					<tr>
-						<th>Classe</th>
-						<td>{{character.classe.name}}</td>
-					</tr>
-					<tr>
-						<th>Race</th>
-						<td>{{character.raceName}}</td>
-					</tr>
-				</table>
-			</div>
-			<div class="clear"></div>
-		</div>
-
 		<div class="section">
-			<div class="column">
-				<div class="section-title">Caractéristiques</div>
-				<table>
-					<tr>
-						<th>Force</th>
-						<td class="attribute">{{character.stats.Force}}</td>
-					</tr>
-					<tr>
-						<th>Dextérité</th>
-						<td class="attribute">{{character.stats.Dextérité}}</td>
-					</tr>
-					<tr>
-						<th>Constitution</th>
-						<td class="attribute">{{character.stats.Constitution}}</td>
-					</tr>
-					<tr>
-						<th>Intelligence</th>
-						<td class="attribute">{{character.stats.Intelligence}}</td>
-					</tr>
-					<tr>
-						<th>Sagesse</th>
-						<td class="attribute">{{character.stats.Sagesse}}</td>
-					</tr>
-					<tr>
-						<th>Charisme</th>
-						<td class="attribute">{{character.stats.Charisme}}</td>
-					</tr>
-				</table>
-			</div>
+			<img src="{{character.picture}}" class="portrait"></img>
+		<div class="column">
+			<div class="name">Nom du personnage :</div>
 
-			<div class="column">
-				<div class="section-title">Capacités</div>
-				<table>
-					<tr>
+			<div class="name">{{character.characterName}}</div>
+			<table>
+				<tr>
+					<th>Niveau</th>
+					<td>{{character.level}}</td>
+				</tr>
+				<tr>
+					<th>Classe</th>
+					<td>{{character.classe.name}}</td>
+				</tr>
+				<tr>
+					<th>Race</th>
+					<td>{{character.raceName}}</td>
+				</tr>
+			</table>
+		</div>
+		<div class="clear"></div>
+	</div>
+</br>
+<table>
+	<tr>
+		<td class="attribute">CAPACITES RACIALES</td>
+		<td class="attribute">{{character.racialAbility.name}}</td>
+		<td class="attribute">{{character.racialAbility.description}}</td>
+		{# <td class="attribute">{{pdfContent.racialAbility.bonus}}</td> #}
+		{# <td class="attribute">{{pdfContent.racialAbility.traits}}</td> #}
+	</tr>
+</table>
+<div class="section">
+	<div class="column">
+		<div class="section-title">Caractéristiques</div>
+		<table>
+			<tr>
+				<th>Force</th>
+				<td class="attribute">{{character.stats.Force}}</td>
+			</tr>
+			<tr>
+				<th>Dextérité</th>
+				<td class="attribute">{{character.stats.Dextérité}}</td>
+			</tr>
+			<tr>
+				<th>Constitution</th>
+				<td class="attribute">{{character.stats.Constitution}}</td>
+			</tr>
+			<tr>
+				<th>Intelligence</th>
+				<td class="attribute">{{character.stats.Intelligence}}</td>
+			</tr>
+			<tr>
+				<th>Sagesse</th>
+				<td class="attribute">{{character.stats.Sagesse}}</td>
+			</tr>
+			<tr>
+				<th>Charisme</th>
+				<td class="attribute">{{character.stats.Charisme}}</td>
+			</tr>
+		</table>
+	</div>
 
-						<th></th>
-					</tr>
-				{% endblock %}
+	<div class="column">
+		<div class="section-title">Description</div>
+		<table>
+			<tr>
+				<th>Age</th>
+				<td class="attribute">{{character.age}}</td>
+			</tr>
+			<tr>
+				<th>Taille</th>
+				<td class="attribute">{{character.height}}</td>
+			</tr>
+			<tr>
+				<th>Poids</th>
+				<td class="attribute">{{character.weight}}</td>
+			</tr>
+			<tr>
+				<th>Cheveux</th>
+				<td class="attribute">{{character.hair}}</td>
+			</tr>
+			<tr>
+				<th>Description</th>
+				<td class="attribute">{{character.description}}</td>
+			</tr>
+		</table>
+	</div>
+	<div class="capacity-section">
+
+		<div class="section-title">Voies</div>
+
+		<table>
+			<tr>
+				{% for way in character.wayAbilities %}
+					<th>{{ way.name }}</th>
+
+				{% endfor %}
+			</tr>
+			<tr>
+				{% for way in character.wayAbilities %}
+					<td>{{ way.description }}</td>
+
+				{% endfor %}
+			</tr>
+
+		</table>
+	{% endblock %}

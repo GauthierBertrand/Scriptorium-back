@@ -6,11 +6,9 @@ use App\Entity\User;
 use App\Entity\Token;
 use App\Form\ResetPasswordType;
 use App\Repository\TokenRepository;
-use App\Utils\MailService;
 use App\Utils\CheckSerializer;
 use Doctrine\ORM\EntityManager;
 use App\Utils\RateLimiterService;
-use Symfony\Component\Mime\Email;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -108,7 +106,7 @@ class SecurityController extends AbstractController
 
     /**
      * Activation du compte de l'utilisateur en utilisant le token envoyé par email
-     * @Route("/activation/{token}", name="app_security_activation", methods="POST")
+     * @Route("/activation/{token}", name="app_security_activation", methods="GET")
      * @return Response
      */
     public function activation($token, EntityManagerInterface $manager): Response
@@ -191,7 +189,6 @@ class SecurityController extends AbstractController
      */
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        
         $error = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
 
@@ -203,7 +200,7 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @Route("/reset-password", name="app_reset_password", methods="GET")
+     * @Route("/reset-password", name="app_reset_password", methods="POST")
      */
     public function ResetMailSend(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator): Response
     {
@@ -225,12 +222,10 @@ class SecurityController extends AbstractController
         $tokenEntity = new Token();
         $tokenEntity->setToken($token);
         $tokenEntity->setUser($user);
-        // dd($tokenEntity);
 
         $entityManager->persist($tokenEntity);
         $entityManager->persist($user);
         $entityManager->flush();
-        // dd($tokenEntity);
 
         $activationLink = $this->generateUrl('app_reset_password_form', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
 
@@ -266,12 +261,11 @@ class SecurityController extends AbstractController
         $data = json_decode($email, true);
         $tokenEntity = $tokenRepository->findOneBy(['token' => $token]);
         $user = $tokenRepository->findOneBy(['token' => $token])->getUser();
-        
+
         $form = $this->createForm(ResetPasswordType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             if ($form->get('password')->getData() !== null) {
                 // avant de sauvegarder, on hash le mot de passe
                 $hashedPassword = $passwordHasher->hashPassword($user, $form->get('password')->getData());
@@ -279,16 +273,25 @@ class SecurityController extends AbstractController
                 // on le met à jour dans le User
                 $user->setPassword($hashedPassword);
                 $manager->remove($tokenEntity);
-                //! faire un return vers une page front une fois le mdp modifié et voir tache cron pour effacer les tokens trop vieux
             }
             // sinon, le mot passe d'origine est conservé
             $userRepository->add($user, true);
-            
+
+            return $this->redirectToRoute('app_reset_password_success');
         }
         return $this->renderForm('/forms/reset_password.html.twig', [
             'form' => $form,
             'user' => $user
         ]);
+    }
 
+    /**
+     * @Route("/reset-password-success/", name="app_reset_password_success", methods="GET")
+     */
+    public function ResetSuccess()
+    {
+        //! faire un return vers une la page de connexion front dans le twig ci dessous lorsque les serveurs seront deployés
+
+        return $this->render('/forms/reset_password_success.html.twig');
     }
 }
