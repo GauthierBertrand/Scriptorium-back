@@ -68,8 +68,6 @@ class SecurityController extends AbstractController
             );
         }
 
-        $result->setPassword($passwordHasher->hashPassword($result, $result->getPassword()));
-
         // On génère un token
         $token = $tokenGenerator->generateToken();
 
