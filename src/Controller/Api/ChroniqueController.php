@@ -69,15 +69,15 @@ class ChroniqueController extends AbstractController
     }
 
     /**
-     * @Route("/ways", name="ways_get_collection", methods={"GET"})
+     * @Route("/ways/id", name="ways_get_collection", methods={"GET"})
      * Get all ways for the ways selection page
      */
-    public function getWays(WayRepository $wayRepository)
+    public function getWays($id, WayRepository $wayRepository)
     {
-        $ways = $this->cache->get("ways", function(ItemInterface $item) use ($wayRepository) {
+        $ways = $this->cache->get("ways", function(ItemInterface $item) use ($wayRepository, $id) {
             $item->expiresAfter(3600);
 
-            return $wayRepository->getWaysAndWayAbilities();
+            return $wayRepository->getWaysAndWayAbilities($id);
         });
         
         return $this->json(
