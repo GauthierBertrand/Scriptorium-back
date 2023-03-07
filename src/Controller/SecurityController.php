@@ -33,7 +33,7 @@ class SecurityController extends AbstractController
      */
     public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator, RateLimiterService $rateLimiter): JsonResponse
     {
-        $rateLimiter->limit($request);
+        // $rateLimiter->limit($request);
 
         $userDatas = $request->getContent();
 

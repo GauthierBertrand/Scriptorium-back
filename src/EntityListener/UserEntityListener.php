@@ -26,6 +26,7 @@ class UserEntityListener {
     public function preUpdate(User $user, LifecycleEventArgs $event) 
     {
         if (array_key_exists("password", $event->getEntityChangeSet())) {
+
             $user->setPassword($this->hasher->hashPassword($user, $user->getPassword()));
         }
     }

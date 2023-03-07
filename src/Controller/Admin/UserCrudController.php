@@ -20,11 +20,19 @@ class UserCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
+        // dd($pageName);
+        $passwordField = TextField::new('password')->setFormType(PasswordType::class)->onlyOnForms();
+
+        switch ($pageName) {
+            case "edit":
+                $passwordField = TextField::new('plainTextPassword')->setFormType(PasswordType::class)->onlyOnForms()->setFormTypeOption("required", false)->setLabel("Password");
+        }
+
         return [
             IdField::new('id')->onlyOnIndex(),
             TextField::new('email'),
-            TextField::new('password')->setFormType(PasswordType::class)->onlyOnForms(),
             TextField::new('pseudo'),
+            $passwordField,
             ArrayField::new('roles'),
             BooleanField::new('is_verified')
         ];
