@@ -27,7 +27,7 @@ class UserController extends AbstractController
         // Decode de content Request and return an array with keys
         $passwords = json_decode($request->getContent(), true);
 
-        if (isset($passwords["current_password"]) or isset($passwords["new_password"])) {
+        if (!isset($passwords["current_password"]) or !isset($passwords["new_password"])) {
             return $this->json(
                 ['error' => "Vous devez indiqué un champ 'current_password' et un champ 'new_password' dans votre requête."],
                 400,

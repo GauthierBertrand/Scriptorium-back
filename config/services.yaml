@@ -31,7 +31,6 @@ services:
                 name: 'doctrine.orm.entity_listener'
                 event: 'preUpdate'
                 entity: 'App\Entity\User'
-                method: 'hashPassword'
             
             - 
                 name: 'doctrine.orm.entity_listener'
@@ -42,7 +41,6 @@ services:
                 name: 'doctrine.orm.entity_listener'
                 event: 'prePersist'
                 entity: 'App\Entity\User'
-                method: 'hashPassword'
 
     App\EntityListener\GroupEntityListener:
         tags:

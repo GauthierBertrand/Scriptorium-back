@@ -18,10 +18,16 @@ class UserEntityListener {
         $this->manager = $manager;
     }
 
-    public function hashPassword(User $user, LifecycleEventArgs $event) 
+    public function prePersist(User $user, LifecycleEventArgs $event) 
     {
         $user->setPassword($this->hasher->hashPassword($user, $user->getPassword()));
+    }
 
+    public function preUpdate(User $user, LifecycleEventArgs $event) 
+    {
+        if (array_key_exists("password", $event->getEntityChangeSet())) {
+            $user->setPassword($this->hasher->hashPassword($user, $user->getPassword()));
+        }
     }
 
     public function preRemove(User $user, LifecycleEventArgs $event)
