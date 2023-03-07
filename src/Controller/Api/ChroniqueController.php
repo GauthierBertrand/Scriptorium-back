@@ -69,7 +69,7 @@ class ChroniqueController extends AbstractController
     }
 
     /**
-     * @Route("/ways/id", name="ways_get_collection", methods={"GET"})
+     * @Route("/ways/{id}", name="ways_get_collection", methods={"GET"})
      * Get all ways for the ways selection page
      */
     public function getWays($id, WayRepository $wayRepository)
