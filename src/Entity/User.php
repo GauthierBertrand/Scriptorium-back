@@ -2,15 +2,16 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use App\Repository\UserRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -97,6 +98,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $playerGroups;
 
+    private $plainTextPassword;
 
     public function __construct()
     {
@@ -347,5 +349,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    public function getPlainTextPassword() 
+    {
+        return $this->getPassword();
+    }
+
+    public function setPlainTextPassword($plainTextPassword) 
+    {
+        if (empty($plainTextPassword)) {
+            return $this;
+        }
+        
+        $this->setPassword($plainTextPassword);
+
+        return $this;
+    }
+
+    /**
+     * @Assert\Callback()
+     */
+    public static function validate($object, ExecutionContextInterface $context, $payload)
+    {
+        $password = $object->getPassword();
+
+        if (strlen($password) > 0) {
+            if (preg_match("/^(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?=.*\d).{8,64}$/", $password) === 0) {
+
+                $context->buildViolation("Le password doit avoir au moins 8 caractères dont un caractère spécial, un chiffre et une majuscule")
+                    ->atPath("plainTextPassword")
+                    ->addViolation();
+            }
+        }
     }
 }
