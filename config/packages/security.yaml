@@ -68,9 +68,6 @@ security:
 
     role_hierarchy:
         ROLE_GAME_MASTER: ROLE_USER
-        # - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
 
 when@test:
     security:

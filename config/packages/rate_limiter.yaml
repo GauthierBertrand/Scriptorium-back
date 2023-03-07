@@ -1,18 +1,18 @@
 framework:
     rate_limiter:
       inscription_api:
-        policy: 'sliding_window'
+        policy: 'fixed_window'
         limit: 5
-        interval: '2 minutes'
+        interval: '15 minutes'
       generatePdf_api:
-        policy: 'sliding_window'
+        policy: 'fixed_window'
         limit: 5
-        interval: '2 minutes'
+        interval: '15 minutes'
       modifyPassword_api:
-        policy: 'sliding_window'
+        policy: 'fixed_window'
         limit: 5
-        interval: '2 minutes'
+        interval: '15 minutes'
       login_api:
         policy: 'fixed_window'
         limit: 5
-        interval: '1 minutes'
+        interval: '15 minutes'
