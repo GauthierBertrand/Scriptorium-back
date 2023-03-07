@@ -76,7 +76,7 @@ class PdfController extends AbstractController
 
     /**
      * Get a saved sheet in pdf
-     * @Route("/api/characters/sheet/{id<\d+>}", name="sheets_get_pdf")
+     * @Route("/api/generator/sheet/{id<\d+>}", name="sheets_get_pdf", methods="GET")
      */
     public function getSavedSheet($id, \Knp\Snappy\Pdf $knpSnappyImage, SheetRepository $sheet): PdfResponse
    {
