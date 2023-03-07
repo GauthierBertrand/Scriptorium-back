@@ -69,7 +69,7 @@ class GameMasterController extends AbstractController
     /**
      * @Route("/groups", name="app_api_game_master_group", methods="POST")
      */
-    public function createGroup(Request $request, GenerateRandomCode $generator, ValidatorInterface $validator, EntityManagerInterface $manager, TokenStorageInterface $tokenStorage, CheckSerializer $checker, GroupRepository $groupRepository)
+    public function createGroup(Request $request, ValidatorInterface $validator, EntityManagerInterface $manager, TokenStorageInterface $tokenStorage, CheckSerializer $checker)
     {
         $user = $tokenStorage->getToken()->getUser();
 

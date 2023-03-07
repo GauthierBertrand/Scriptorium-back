@@ -21,7 +21,7 @@ class PdfController extends AbstractController
      */
     public function generatePdf(\Knp\Snappy\Pdf $knpSnappyImage, CheckSerializer $checker, Request $request, RateLimiterService $rateLimiter, ValidatorInterface $validator): PdfResponse
     {
-        // $rateLimiter->limit($request);
+        $rateLimiter->limit($request);
 
         // On instencie FilesystemAdapter pour gérer le cache
         $cache = new FilesystemAdapter();
