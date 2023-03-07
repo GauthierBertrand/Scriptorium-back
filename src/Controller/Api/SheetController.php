@@ -184,7 +184,7 @@ class SheetController extends AbstractController
      * Delete a sheet
      * @Route("/characters/{id<\d+>}", name="sheets_delete_item", methods={"DELETE"})
      */
-    public function deleteSheet(Sheet $sheet = null, Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager): JsonResponse
+    public function deleteSheet(Sheet $sheet = null, EntityManagerInterface $entityManager): JsonResponse
     {
         if (empty($sheet)) {
             return $this->json(
