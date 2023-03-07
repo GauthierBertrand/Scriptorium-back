@@ -6,12 +6,9 @@ use App\Entity\Sheet;
 use App\Utils\CheckSerializer;
 use App\Utils\RateLimiterService;
 use App\Repository\SheetRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,7 +21,7 @@ class PdfController extends AbstractController
      */
     public function generatePdf(\Knp\Snappy\Pdf $knpSnappyImage, CheckSerializer $checker, Request $request, RateLimiterService $rateLimiter, ValidatorInterface $validator): PdfResponse
     {
-        // $rateLimiter->limit($request);
+        $rateLimiter->limit($request);
 
         // On instencie FilesystemAdapter pour gérer le cache
         $cache = new FilesystemAdapter();
@@ -79,7 +76,7 @@ class PdfController extends AbstractController
 
     /**
      * Get a saved sheet in pdf
-     * @Route("/api/characters/sheet/{id<\d+>}", name="sheets_get_pdf")
+     * @Route("/api/generator/sheet/{id<\d+>}", name="sheets_get_pdf", methods="GET")
      */
     public function getSavedSheet($id, \Knp\Snappy\Pdf $knpSnappyImage, SheetRepository $sheet): PdfResponse
    {

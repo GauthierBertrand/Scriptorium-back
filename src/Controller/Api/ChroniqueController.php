@@ -28,6 +28,8 @@ class ChroniqueController extends AbstractController
     public function __construct()
     {
         $this->cache = new FilesystemAdapter();
+        $ways = $this->cache->getItem("ways");
+        $this->cache->delete("ways");
     }
 
     /**

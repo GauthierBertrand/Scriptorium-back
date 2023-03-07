@@ -12,7 +12,7 @@ nelmio_cors:
             allow_headers: ['Content-Type', 'Authorization']
             allow_methods: ['POST', 'GET', 'PUT', 'DELETE', "PATCH"]
             max_age: 3600
-        '^/inscription': 
+        '^/': 
             allow_origin: ['*']
             allow_headers: ['Content-Type', 'Authorization']
             allow_methods: ['POST', 'GET', 'PUT', 'DELETE', "PATCH"]

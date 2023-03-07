@@ -32,8 +32,10 @@ class CheckSerializer {
             return $entity;
         } catch (NotNormalizableValueException $exception) {
             return $exception->getMessage();
+
         } catch (NotEncodableValueException $exception) {
             return $exception->getMessage();
+            
         }
     }
 }
