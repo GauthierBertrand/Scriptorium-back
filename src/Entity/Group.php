@@ -128,7 +128,7 @@ class Group
     /**
      * @Assert\Callback()
      */
-    public static function validate($object, ExecutionContextInterface $context, $payload)
+    public static function validateName($object, ExecutionContextInterface $context, $payload)
     {
         $game_master = $object->getGameMaster();
 
@@ -144,6 +144,20 @@ class Group
                     ->addViolation();
                 break;
             }    
+        }
+    }
+
+    /**
+     * @Assert\Callback()
+     */
+    public static function validateAssociation($object, ExecutionContextInterface $context, $payload) 
+    {
+        $players = $object->getPlayers();
+
+        if ($players->contains($object->getGameMaster())) {
+            $context->buildViolation("Le GM ne peut pas faire partie de son propre groupe")
+                ->atPath("players")
+                ->addViolation();
         }
     }
 }

@@ -46,14 +46,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
-     * @Assert\NotBlank(
-     *  message = "Le champ password ne peut pas être vide."
-     * )
-     * @Assert\Length(
-     *  min = 8,
-     *  max = 64,
-     *  minMessage = "Le password doit être de '{{ limit }}' caractères minimum.",
-     *  maxMessage = "Le password doit être de '{{ limit }}' caractères maximum."
+     * @Assert\Regex(
+     *  pattern = "/^(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?=.*\d).{8,64}$/",
+     *  match = true,
+     *  message = "Le password doit avoir au moins 8 caractères dont un caractère spécial, un chiffre et une majuscule."
      * )
      */
     private $password;
@@ -361,7 +357,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if (empty($plainTextPassword)) {
             return $this;
         }
-        
+
         $this->setPassword($plainTextPassword);
 
         return $this;
@@ -372,6 +368,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public static function validate($object, ExecutionContextInterface $context, $payload)
     {
+        if ($object->getId() === null) {
+            return; 
+        }
+
         $password = $object->getPassword();
 
         if (strlen($password) > 0) {
