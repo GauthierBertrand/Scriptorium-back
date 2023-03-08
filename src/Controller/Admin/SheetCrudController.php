@@ -32,6 +32,7 @@ class SheetCrudController extends AbstractCrudController
             IntegerField::new('height'),
             IntegerField::new('weight'),
             TextField::new('hair'),
+            //We use an external property of the entity to receive a valid json transform by DataTransformer
             TextareaField::new('encodestats')->setFormType(JsonEditorType::class)->setLabel("Stats"),
             AssociationField::new('user'),
             AssociationField::new('classe'),
@@ -39,5 +40,4 @@ class SheetCrudController extends AbstractCrudController
             AssociationField::new('racialAbility')
         ];
     }
-    
 }

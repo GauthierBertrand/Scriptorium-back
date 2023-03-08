@@ -3,25 +3,32 @@
 namespace App\Controller\Api;
 
 use App\Entity\Group;
-use App\Repository\GroupRepository;
-use App\Repository\UserRepository;
 use App\Utils\CheckSerializer;
-use App\Utils\GenerateRandomCode;
+use App\Repository\UserRepository;
+use App\Repository\GroupRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @Route("/api/game-master", name="app_api_game_master")
+ * Control all gamemaster's features
  */
 class GameMasterController extends AbstractController
 {
     /**
      * @Route("/users", name="app_api_game_master_upgrade", methods="PATCH")
+     * Allows a logged user (USER or ADMIN) to upgrade his account to ROLE_GAME_MASTER
+     * 
+     * @param EntityManagerInterface $manager
+     * @param TokenStorageInterface $tokenStorage
+     * 
+     * @return JsonResponse
      */
     public function becomeGameMaster(EntityManagerInterface $manager, TokenStorageInterface $tokenStorage): JsonResponse
     {
@@ -32,7 +39,7 @@ class GameMasterController extends AbstractController
         if (in_array("ROLE_GAME_MASTER", $roles)) {
             return $this->json(
                 ["error" => "L'utilisateur est déjà un GameMaster."],
-                400,
+                Response::HTTP_NOT_ACCEPTABLE,
                 []
             );
         }
@@ -44,15 +51,20 @@ class GameMasterController extends AbstractController
 
         return $this->json(
             ["confirmation" => "Le compte à bien été upgrade."],
-            200,
+            Response::HTTP_ACCEPTED,
             []
         );
     }
 
     /**
      * @Route("/groups", name="app_api_game_master_get", methods="GET")
+     * Allows a logged GameMaster to access his groups and players informations
+     * 
+     * @param TokenStorageInterface $tokenStorage
+     * 
+     * @return JsonResponse
      */
-    public function getGroups(TokenStorageInterface $tokenStorage) 
+    public function getGroups(TokenStorageInterface $tokenStorage): JsonResponse
     {
         $user = $tokenStorage->getToken()->getUser();
 
@@ -60,7 +72,7 @@ class GameMasterController extends AbstractController
         
         return $this->json(
             ["groups" => $groups],
-            200,
+            Response::HTTP_OK,
             [],
             ["groups" => "group_get_information"]
         );
@@ -68,19 +80,29 @@ class GameMasterController extends AbstractController
 
     /**
      * @Route("/groups", name="app_api_game_master_group", methods="POST")
+     * Allows to create a new group and return his register code 
+     * 
+     * @param Request $request
+     * @param ValidatorInterface $validator
+     * @param EntityManagerInterface $manager
+     * @param TokenStorageInterface $tokenStorage
+     * @param CheckSerializer $checker
+     * 
+     * @return JsonResponse
      */
-    public function createGroup(Request $request, ValidatorInterface $validator, EntityManagerInterface $manager, TokenStorageInterface $tokenStorage, CheckSerializer $checker)
+    public function createGroup(Request $request, ValidatorInterface $validator, EntityManagerInterface $manager, TokenStorageInterface $tokenStorage, CheckSerializer $checker): JsonResponse
     {
         $user = $tokenStorage->getToken()->getUser();
 
         $jsonContent = $request->getContent();
 
+        // method wich verified some possible errors compared with context to call and return a specific response
         $result = $checker->serializeValidation($jsonContent, Group::class);
 
         if (!$result instanceof Group) {
             return $this->json(
                 ["error", $result],
-                404,
+                Response::HTTP_BAD_REQUEST,
                 []
             );
         }
@@ -95,7 +117,7 @@ class GameMasterController extends AbstractController
             
             return $this->json(
                 ["errors" => $errorsJson],
-                404,
+                Response::HTTP_NOT_ACCEPTABLE,
                 []
             );
         }
@@ -105,15 +127,24 @@ class GameMasterController extends AbstractController
 
         return $this->json(
             ["code" => $result->getCodeRegister()],
-            201,
+            Response::HTTP_CREATED,
             []
         );
     }
 
     /**
      * @Route("/groups/add", name="app_api_game_master_add_user", methods="POST")
+     * Allows a logged user to link his account to an existing group with his register group code
+     * 
+     * @param EntityManagerInterface $manager
+     * @param Request $request
+     * @param TokenStorageInterface $tokenStorage
+     * @param GroupRepository $groupRepository
+     * @param ValidatorInterface $validator
+     * 
+     * @return JsonResponse
      */
-    public function addToGroup(EntityManagerInterface $manager, Request $request, TokenStorageInterface $tokenStorage, GroupRepository $groupRepository) 
+    public function addToGroup(EntityManagerInterface $manager, Request $request, ValidatorInterface $validator, TokenStorageInterface $tokenStorage, GroupRepository $groupRepository): JsonResponse
     {
         $user = $tokenStorage->getToken()->getUser();
         $jsonContent = json_decode($request->getContent(), true);
@@ -121,7 +152,7 @@ class GameMasterController extends AbstractController
         if (!isset($jsonContent["code_register"]) OR gettype($jsonContent["code_register"]) !== "string") {
             return $this->json(
                 ["error" => "Vous devez indiquer un champ code_register valide."],
-                404,
+                Response::HTTP_BAD_REQUEST,
                 []
             );
         }
@@ -131,12 +162,24 @@ class GameMasterController extends AbstractController
         if (!$group instanceof Group) {
             return $this->json(
                 ["error" => $group],
-                404,
+                Response::HTTP_BAD_REQUEST,
                 []
             );
         }
 
-        $this->denyAccessUnlessGranted("ADD_PLAYER", $group);
+        $errors = $validator->validate($group);
+
+        if (count($errors) > 0) {
+            foreach($errors as $error) {
+                $errorsJson[$error->getPropertyPath()] = $error->getMessage();
+            }
+            
+            return $this->json(
+                ["errors" => $errorsJson],
+                Response::HTTP_NOT_ACCEPTABLE,
+                []
+            );
+        }
 
         $group->addPlayer($user);
 
@@ -144,20 +187,28 @@ class GameMasterController extends AbstractController
 
         return $this->json(
             ["confirmation" => "Le joueur a bien été ajouté au groupe."],
-            201,
+            Response::HTTP_CREATED,
             []
         );
     }
 
     /**
      * @Route("/groups/{id}/users", name="app_api_gamemaster_delete_user", methods="DELETE")
+     * Allows the GameMaster of a specific group to delete a user of the group by user id
+     * 
+     * @param Request $request
+     * @param Group $group
+     * @param UserRepository $userRepository
+     * @param EntityManagerInterface $manager
+     * 
+     * @return JsonResponse
      */
-    public function deleteUserToGroup(Request $request, Group $group = null, UserRepository $userRepository, EntityManagerInterface $manager) 
+    public function deleteUserToGroup(Request $request, Group $group = null, UserRepository $userRepository, EntityManagerInterface $manager): JsonResponse
     {
         if(empty($group)) {
             return $this->json(
                 ["error" => "Ce groupe n'existe pas."],
-                404,
+                Response::HTTP_NOT_FOUND,
                 []
             );
         }
@@ -177,7 +228,7 @@ class GameMasterController extends AbstractController
         if (!$user) {
             return $this->json(
                 ["error" => "Cet utilisateur n'existe pas."],
-                404,
+                Response::HTTP_BAD_REQUEST,
                 []
             );
         }
@@ -185,7 +236,7 @@ class GameMasterController extends AbstractController
         if (!$group->getPlayers()->contains($user)) {
             return $this->json(
                 ["error" => "Cet utilisateur n'est pas dans ce groupe."],
-                404,
+                Response::HTTP_BAD_REQUEST,
                 []
             );
         }
@@ -196,20 +247,26 @@ class GameMasterController extends AbstractController
 
         return $this->json(
             ["confirmation" => "Le joueur a bien été supprimé du groupe."],
-            200,
+            Response::HTTP_OK,
             []
         );
     }   
 
     /**
      * @Route("/groups/{id}/delete", name="app_api_group_delete", methods="DELETE")
+     * Allows the GameMaster of a specific group to delete it
+     * 
+     * @param Group $group
+     * @param EntityManagerInterface $manager
+     * 
+     * @return JsonResponse
      */
-    public function deleteGroup(Group $group = null, EntityManagerInterface $manager) 
+    public function deleteGroup(Group $group = null, EntityManagerInterface $manager): JsonResponse
     {
         if (empty($group)) {
             return $this->json(
                 ["error" => "Ce group n'existe pas!"],
-                404,
+                Response::HTTP_BAD_REQUEST,
                 []
             );
         }
@@ -221,7 +278,7 @@ class GameMasterController extends AbstractController
 
         return $this->json(
             ["confirmation" => "Le group a bien été supprimé"],
-            200,
+            Response::HTTP_OK,
             []
         );
     }

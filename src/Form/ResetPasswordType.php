@@ -7,7 +7,6 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\EqualTo;
 
 class ResetPasswordType extends AbstractType
 {
@@ -16,11 +15,13 @@ class ResetPasswordType extends AbstractType
         $builder
         ->add('password', RepeatedType::class, [
             'type' => PasswordType::class,
-            'invalid_message' => 'Les deux mots de passe doivent être identiques.',
-            'first_options'  => ['label' => 'Nouveau mot de passe'],
-            'second_options' => ['label' => 'Confirmation du nouveau mot de passe'],
+            'invalid_message' => 'Les deux mots de passe doivent être identiques, contenir 1 majuscule, 1 caractère spécial et un chiffre.',
+            'options' => ['attr' => ['class' => 'password-field']],
             'required' => true,
-        ]);
+            'first_options'  => ['label' => 'Nouveau mot de passe'],
+            'second_options' => ['label' => 'Confirmation du nouveau mot de passe']
+            ]
+        );
     }
 
     public function configureOptions(OptionsResolver $resolver): void

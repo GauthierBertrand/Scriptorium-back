@@ -94,6 +94,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $playerGroups;
 
+    /**
+     * Custom field only use by validation callback
+     */
     private $plainTextPassword;
 
     public function __construct()
@@ -347,6 +350,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * Custom getter and setter used by easy admin
+     */
     public function getPlainTextPassword() 
     {
         return $this->getPassword();
@@ -365,6 +371,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @Assert\Callback()
+     * Allows only to edit in easy admin to have empty password OR valid password
      */
     public static function validate($object, ExecutionContextInterface $context, $payload)
     {

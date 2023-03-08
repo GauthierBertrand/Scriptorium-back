@@ -127,6 +127,7 @@ class Group
 
     /**
      * @Assert\Callback()
+     * Raise violation if game master create new group with name wich already exists (only in his group)
      */
     public static function validateName($object, ExecutionContextInterface $context, $payload)
     {
@@ -149,6 +150,7 @@ class Group
 
     /**
      * @Assert\Callback()
+     * Raise violation if the game master is added in his group
      */
     public static function validateAssociation($object, ExecutionContextInterface $context, $payload) 
     {

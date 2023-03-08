@@ -9,13 +9,12 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class GroupVoter extends Voter
 {
     public const DELETE = 'DELETE_BY_GM';
-    public const ADD = 'ADD_PLAYER';
 
     protected function supports(string $attribute, $subject): bool
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, [self::DELETE, self::ADD])
+        return in_array($attribute, [self::DELETE])
             && $subject instanceof \App\Entity\Group;
     }
 
@@ -31,11 +30,6 @@ class GroupVoter extends Voter
         switch ($attribute) {
             case self::DELETE:
                 if ($user === $subject->getGameMaster()) {
-                    return true;
-                }
-                break;
-            case self::ADD:
-                if ($user !== $subject->getGameMaster() AND !$subject->getPlayers()->contains($user)) {
                     return true;
                 }
                 break;

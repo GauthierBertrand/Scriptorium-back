@@ -8,46 +8,50 @@ use App\Utils\RateLimiterService;
 use App\Repository\SheetRepository;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class PdfController extends AbstractController
 {
     /**
      * @Route("/api/generator", name="app_api_pdf", methods="POST")
+     * Method to generate a pdf file from datas given by an anonymous user and saving datas in cache
+     * 
+     * @param \Knp\Snappy\Pdf $knpSnappyPdf
+     * @param CheckSerializer $checker
+     * @param Request $request
+     * @param RateLimiterService $rateLimiter
+     * @param ValidatorInterface $validator
+     * 
+     * @return JsonResponse|PdfResponse
      */
-    public function generatePdf(\Knp\Snappy\Pdf $knpSnappyImage, CheckSerializer $checker, Request $request, RateLimiterService $rateLimiter, ValidatorInterface $validator): PdfResponse
+    public function generatePdf(\Knp\Snappy\Pdf $knpSnappyPdf, CheckSerializer $checker, Request $request, RateLimiterService $rateLimiter, ValidatorInterface $validator)
     {
         $rateLimiter->limit($request);
 
-        // On instencie FilesystemAdapter pour gérer le cache
         $cache = new FilesystemAdapter();
 
-        //On recupere la clé de session pour la concatener à la clé de cache et en faire une clé unique à chaque utilisateur
+        //Create a unique key with the user session id
         $cacheKey = 'pdf_content_' . $request->getSession()->getId();
-        // dd($cacheKey);
-
-        // Par précaution on vide le cache de la clé pdf_content
-        //$cache->deleteItem($cacheKey);
 
         $jsonContent = $request->getContent();
         
-        // On enregistre dans le cache le contenu de la $jsonContent (Request)
         $cache->get($cacheKey, function (ItemInterface $item) use ($jsonContent) {
             $item->expiresAfter(900);
             return $jsonContent;
         });
         
-        // On deserialize $jsonContent (Request) pour l'utiliser dans notre template twig
         $result = $checker->serializeValidation($jsonContent, Sheet::class);
         
         if (!$result instanceof Sheet) {
             return $this->json(
                 ["error" => $result],
-                404,
+                Response::HTTP_NOT_FOUND,
                 []
             );
         }
@@ -59,38 +63,46 @@ class PdfController extends AbstractController
                 $errorJson[$error->getPropertyPath()] = $error->getMessage();
             }
 
-            return $this->json("ok");
+            return $this->json(
+                ["errors" => $errorJson],
+                Response::HTTP_BAD_REQUEST,
+                []
+            );
         }
-        // dd($result);
-        //On stock le template twig avec le contenu de jsonContent (Request) dans $html
+        
         $html = $this->renderView('api/pdf/fiche.html.twig', [
             'pdfContent' => $result,
         ]);
       
-        // $html = $this->renderView('api/pdf/test.html.twig');
         return new PdfResponse(
-            $knpSnappyImage->getOutputFromHtml($html),
+            $knpSnappyPdf->getOutputFromHtml($html),
             'file.pdf'
         );
     }
 
     /**
-     * Get a saved sheet in pdf
      * @Route("/api/generator/sheet/{id<\d+>}", name="sheets_get_pdf", methods="GET")
+     * Get a user saved sheet in pdf
+     * 
+     * @param int $id,
+     * @param \Knp\Snappy\Pdf $knpSnappyPdf
+     * @param SheetRepository $sheet
+     * 
+     * @return PdfResponse
      */
-    public function getSavedSheet($id, \Knp\Snappy\Pdf $knpSnappyImage, SheetRepository $sheet): PdfResponse
+    public function getSavedSheet($id, \Knp\Snappy\Pdf $knpSnappyPdf, SheetRepository $sheet): PdfResponse
    {
        $sheetContent = $sheet->getSavedSheet($id);
+
+       $this->denyAccessUnlessGranted("GET_SHEET", $sheetContent);
 
        $html =  $this->render('/api/pdf/saved_sheet.html.twig', [
            'character' => $sheetContent,
        ]);
 
        return new PdfResponse(
-        $knpSnappyImage->getOutputFromHtml($html),
+        $knpSnappyPdf->getOutputFromHtml($html),
         'file.pdf'
     );
-
    }
-
 }

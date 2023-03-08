@@ -64,6 +64,7 @@ security:
         - { path: ^/api/game-master/groups/add, roles: ROLE_USER }
         - { path: ^/api/game-master, roles: ROLE_GAME_MASTER }
         - { path: ^/inscription, roles: PUBLIC_ACCESS }
+        - { path: ^/api/generator/sheet, roles: ROLE_USER }
         - { path: ^/admin, roles: ROLE_ADMIN }
 
     role_hierarchy:

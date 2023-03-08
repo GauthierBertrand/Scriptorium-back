@@ -25,7 +25,10 @@ class SheetController extends AbstractController
 {
     /**
      * @Route("/characters/{id<\d+>}", name="sheets_get_item", methods={"GET"})
-     * Get one sheet by id
+     * Get one sheet by its id
+     * @param Sheet $sheet
+     * 
+     * @return JsonResponse
      */
     public function getSheetItem(Sheet $sheet = null): JsonResponse
     {
@@ -45,10 +48,15 @@ class SheetController extends AbstractController
     /**
      * @Route("/characters/users", name="sheets_get_collection", methods={"GET"})
      * Get all sheets by user id
+     * 
+     * @param SheetRepository $sheetRepository
+     * @param TokenStorageInterface $tokenInterface
+     * 
+     * @return JsonResponse
      */
-    public function getUserSheets(SheetRepository $sheetRepository, TokenStorageInterface $tokenInterface): JsonResponse
+    public function getUserSheets(SheetRepository $sheetRepository, TokenStorageInterface $tokenStorage): JsonResponse
     {
-        $token = $tokenInterface->getToken();
+        $token = $tokenStorage->getToken();
         $user = $token->getUser();
         $sheets = $sheetRepository->getSheetsByUser($user);
 
@@ -70,22 +78,26 @@ class SheetController extends AbstractController
 
     /**
      * @Route("/characters", name="post_sheets_item", methods={"POST"})
-     * Post a sheet in database
+     * Post a sheet in database from cache
+     * 
+     * @param Request $request
+     * @param CheckSerializer $checker
+     * @param ValidatorInterface $validator
+     * @param EntityManagerInterface $manager
+     * @param TokenStorageInterface $tokenStorage
+     * 
+     * @return JsonResponse
      */
-    public function createSheet(Request $request, CheckSerializer $checker, ValidatorInterface $validator, EntityManagerInterface $entityManager, TokenStorageInterface $tokenInterface): JsonResponse
+    public function createSheet(Request $request, CheckSerializer $checker, ValidatorInterface $validator, EntityManagerInterface $manager, TokenStorageInterface $tokenStorage): JsonResponse
     {
-        $token = $tokenInterface->getToken();
+        $token = $tokenStorage->getToken();
         $user = $token->getUser();
 
-        // On récupère le contenu du cache généré via la route api/generator grace à la clé pdf_content+id de session de l'utilisateur
         $cache = new FilesystemAdapter;
         $cacheKey = 'pdf_content_' . $request->getSession()->getId();
-        // dd($cacheKey);
 
         $dataSheet = $cache->getItem($cacheKey);
-        // dd($dataSheet);
         
-        // On verifie si le cache n'est pas vide (on renvoie une erreur 400 s'il est vide)
         if (!$dataSheet->isHit()) {
             return $this->json(
                 ['erreur' => 'Le cache est vide'],
@@ -94,16 +106,14 @@ class SheetController extends AbstractController
             );
         }
 
-        // ->get('value') pour recuperer la valeur du cache
         $jsonContent = $dataSheet->get('value');
-        // dd($dataSheet);
-        // On deserialise le contenu du cache
+        
         $result = $checker->serializeValidation($jsonContent, Sheet::class);
             
         if (!$result instanceof Sheet) {
             return $this->json(
                 ["error" => $result],
-                404,
+                Response::HTTP_NOT_FOUND,
                 []
             );
         }
@@ -120,10 +130,9 @@ class SheetController extends AbstractController
             return $this->json(["errors" => $errorList], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $entityManager->persist($result);
-        $entityManager->flush();
+        $manager->persist($result);
+        $manager->flush();
 
-        // On vide le cache après l'envoi à la BDD
         $cache->deleteItem($cacheKey);
 
         return $this->json(
@@ -134,10 +143,17 @@ class SheetController extends AbstractController
     }
 
     /**
-     * Update character sheet
      * @Route("/characters/{id<\d+>}", name="sheets_patch_item", methods={"PATCH"})
+     * Update a saved user character sheet
+     * @param Sheet $sheet
+     * @param Request $request
+     * @param CheckSerializer $checker
+     * @param ValidatorInterface $validator
+     * @param EntityManagerInterface $manager
+     * 
+     * @return JsonResponse
      */
-    public function patch(Sheet $sheet = null, Request $request, CheckSerializer $checker, ValidatorInterface $validator, EntityManagerInterface $entityManager): JsonResponse
+    public function patch(Sheet $sheet = null, Request $request, CheckSerializer $checker, ValidatorInterface $validator, EntityManagerInterface $manager): JsonResponse
     {
         if (empty($sheet)) {
             return $this->json(
@@ -155,7 +171,7 @@ class SheetController extends AbstractController
         if (!$result instanceof Sheet) {
             return $this->json(
                 ["error" => $result],
-                404,
+                Response::HTTP_NOT_FOUND,
                 []
             );
         }
@@ -170,7 +186,7 @@ class SheetController extends AbstractController
             return $this->json(["errors" => $errorJson], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $entityManager->flush();
+        $manager->flush();
 
         return $this->json(
             ['sheet' => $sheet],
@@ -181,10 +197,15 @@ class SheetController extends AbstractController
     }
 
     /**
-     * Delete a sheet
      * @Route("/characters/{id<\d+>}", name="sheets_delete_item", methods={"DELETE"})
+     * Delete a saved user character sheet
+     * 
+     * @param Sheet $sheet
+     * @param EntityManagerInterface $manager
+     * 
+     * @return JsonResponse
      */
-    public function deleteSheet(Sheet $sheet = null, EntityManagerInterface $entityManager): JsonResponse
+    public function deleteSheet(Sheet $sheet = null, EntityManagerInterface $manager): JsonResponse
     {
         if (empty($sheet)) {
             return $this->json(
@@ -196,8 +217,8 @@ class SheetController extends AbstractController
 
         $this->denyAccessUnlessGranted('POST_EDIT', $sheet);
 
-        $entityManager->remove($sheet);
-        $entityManager->flush();
+        $manager->remove($sheet);
+        $manager->flush();
 
         return $this->json(
             ['message' => 'La fiche a bien été supprimée'],
@@ -206,6 +227,4 @@ class SheetController extends AbstractController
             ['groups' => 'sheet_get_item']
         );
     }
-
-
 }

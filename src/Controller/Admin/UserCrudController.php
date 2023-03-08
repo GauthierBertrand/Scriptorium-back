@@ -3,7 +3,6 @@
 namespace App\Controller\Admin;
 
 use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
@@ -20,9 +19,9 @@ class UserCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        // dd($pageName);
         $passwordField = TextField::new('password')->setFormType(PasswordType::class)->onlyOnForms();
 
+        // Create a new field instance compared with $pageName to have a special treatment to password property 
         switch ($pageName) {
             case "edit":
                 $passwordField = TextField::new('plainTextPassword')->setFormType(PasswordType::class)->onlyOnForms()->setFormTypeOption("required", false)->setLabel("Password");

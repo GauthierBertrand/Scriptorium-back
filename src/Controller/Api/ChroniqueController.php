@@ -21,20 +21,22 @@ use Symfony\Contracts\Cache\ItemInterface;
 class ChroniqueController extends AbstractController
 {
     /**
-     * @var FilesystemAdapter
+     * @var FilesystemAdapter $cache
      */
     private $cache;
 
     public function __construct()
     {
         $this->cache = new FilesystemAdapter();
-        $ways = $this->cache->getItem("ways");
-        $this->cache->delete("ways");
     }
 
     /**
      * @Route("/classes", name="classes_get_collection", methods={"GET"})
-     * Get all classes for the classes choice page
+     * Get all classes for the classes choice page with cache gestion
+     * 
+     * @param ClasseRepository $classeRepository
+     * 
+     * @return JsonResponse
      */
     public function getClasses(ClasseRepository $classeRepository): JsonResponse
     {
@@ -52,7 +54,11 @@ class ChroniqueController extends AbstractController
 
     /**
      * @Route("/races", name="races_get_collection", methods={"GET"})
-     * Get all races for rhe races choice page
+     * Get all races for rhe races choice page with cache gestion
+     * 
+     * @param RaceRepository $raceRepository
+     * 
+     * @return JsonResponse
      */
     public function getRaces(RaceRepository $raceRepository): JsonResponse
     {
@@ -72,16 +78,17 @@ class ChroniqueController extends AbstractController
 
     /**
      * @Route("/ways/{id}", name="ways_get_collection", methods={"GET"})
-     * Get all ways for the ways selection page
+     * Get all ways for the ways selection page by classe's id
+     * 
+     * @param int $id
+     * @param WayRepository $wayRepository
+     * 
+     * @return JsonResponse 
      */
-    public function getWays($id, WayRepository $wayRepository)
+    public function getWays($id, WayRepository $wayRepository): JsonResponse
     {
-        $ways = $this->cache->get("ways", function(ItemInterface $item) use ($wayRepository, $id) {
-            $item->expiresAfter(3600);
+        $ways = $wayRepository->getWaysAndWayAbilities($id);
 
-            return $wayRepository->getWaysAndWayAbilities($id);
-        });
-        
         return $this->json(
             ['ways' => $ways],
             Response::HTTP_OK,
@@ -92,9 +99,13 @@ class ChroniqueController extends AbstractController
 
     /**
      * @Route("/stats", name="stats_get_collection", methods={"GET"})
-     * Get all stats for the stats selection page
+     * Get all stats for the stats selection page with cache gestion
+     * 
+     * @param StatRepository $statRepository
+     * 
+     * @return JsonResponse
      */
-    public function getStats(StatRepository $statRepository)
+    public function getStats(StatRepository $statRepository): JsonResponse
     {
         $stats = $this->cache->get("stats", function(ItemInterface $item) use ($statRepository) {
             $item->expiresAfter(3600);
@@ -112,9 +123,13 @@ class ChroniqueController extends AbstractController
 
     /**
      * @Route("/religions", name="religions_get_collection", methods={"GET"})
-     * Get all religions for the character information page
+     * Get all religions for the character information page with cache gestion
+     * 
+     * @param ReligionRepository $religionRepository
+     * 
+     * @return JsonResponse
      */
-    public function getReligions(ReligionRepository $religionRepository)
+    public function getReligions(ReligionRepository $religionRepository): JsonResponse
     {
         $religions = $this->cache->get("religions", function(ItemInterface $item) use ($religionRepository) {
             $item->expiresAfter(3600);

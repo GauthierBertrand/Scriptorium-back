@@ -381,17 +381,6 @@ class Sheet
         return $this;
     }
 
-    public function getEncodeStats() 
-    {
-        return json_encode($this->getStats());
-    }
-
-    public function setEncodeStats(string $stats) 
-    {
-        $this->stats = json_decode($stats, true);
-        return $this;
-    }
-
     public function getEye(): ?string
     {
         return $this->eye;
@@ -403,4 +392,20 @@ class Sheet
 
         return $this;
     }
+
+    /**
+     * Custom getter and setter used by Easyadmin
+     */
+    public function getEncodeStats() 
+    {
+        return json_encode($this->getStats());
+    }
+
+    public function setEncodeStats(string $stats) 
+    {
+        $this->stats = json_decode($stats, true);
+        return $this;
+    }
+
+    
 }

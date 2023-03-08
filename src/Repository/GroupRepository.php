@@ -40,7 +40,12 @@ class GroupRepository extends ServiceEntityRepository
         }
     }
 
-    public function findGroupByToken($token)
+    /**
+     * @param string $token
+     * 
+     * @return Group|string
+     */
+    public function findGroupByToken(string $token)
     {
         $manager = $this->getEntityManager();
 

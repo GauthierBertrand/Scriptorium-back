@@ -39,6 +39,9 @@ class WayRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * @param int $id
+     */
     public function getWaysAndWayAbilities($id) 
     {
         $manager = $this->getEntityManager();

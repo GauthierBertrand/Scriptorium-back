@@ -28,9 +28,6 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        // $product = new Product();
-        // $manager->persist($product);
-
         foreach($this->datas->races as $race) {
             $raceEntity = new Race();
 
@@ -177,30 +174,6 @@ class AppFixtures extends Fixture
 
             $manager->persist($religionEntity);
         }
-
-        $roles = ["ROLE_GAME_MASTER", "ROLE_ADMIN"];
-        $userName = ["freir", "baldur"];
-
-        for($i = 0; $i < 3; $i++) {
-            $user = new User();
-
-            if ($i === 0) {
-                $user->setPseudo("Odin")
-                    ->setPassword($this->hasher->hashPassword($user, "odinodin"))
-                    ->setEmail("odin@gmail.com")
-                ;
-                $manager->persist($user);
-                continue;
-            }
-
-            $user->setPseudo(ucfirst($userName[$i-1]))
-                ->setPassword($this->hasher->hashPassword($user, $userName[$i-1] . $userName[$i-1]))
-                ->setEmail($userName[$i-1] . "@gmail.com")
-                ->setRoles($roles);
-            
-            $manager->persist($user);
-        }
-
         $manager->flush();
     }
 }

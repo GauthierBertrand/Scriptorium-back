@@ -20,20 +20,28 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class SecurityController extends AbstractController
 {
     /**
-     * Inscription de l'utilisateur en utilisant les données envoyées au format JSON
-     * @Route("/inscription", name="app_security_inscription", methods="POST")
+     * @Route("/inscription", name="app_security_inscription", methods="POST") 
+     * User incription with user datas and sending validation mail for token verification
+     * 
+     * @param Request $request
+     * @param CheckSerializer $checker
+     * @param ValidatorInterface $validator
+     * @param EntityManagerInterface $manager
+     * @param MailerInterface $mailer
+     * @param TokenGeneratorInterface $tokenGenerator
+     * @param RateLimiterService $rateLimiter
+     * 
      * @return JsonResponse
      */
-    public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $manager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator, RateLimiterService $rateLimiter): JsonResponse
+    public function inscription(Request $request, CheckSerializer $checker, ValidatorInterface $validator, EntityManagerInterface $manager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator, RateLimiterService $rateLimiter): JsonResponse
     {
-        // $rateLimiter->limit($request);
+        $rateLimiter->limit($request);
 
         $userDatas = $request->getContent();
 
@@ -42,10 +50,12 @@ class SecurityController extends AbstractController
         if (!$result instanceof User) {
             return $this->json(
                 ["error" => $result],
-                404,
+                Response::HTTP_NOT_FOUND,
                 []
             );
         }
+
+        $result->setRoles(["ROLE_USER"]);
 
         $errors = $validator->validate($result);
 
@@ -58,28 +68,25 @@ class SecurityController extends AbstractController
 
             return $this->json(
                 ["errors" => $errorsJson],
-                400,
+                Response::HTTP_BAD_REQUEST,
                 []
             );
         }
 
-        // On génère un token
         $token = $tokenGenerator->generateToken();
 
-        // On créé une nouvelle instance de l'entité Token et on la lie à l'utilisateur
         $tokenEntity = new Token();
-        $tokenEntity->setToken($token);
-        $tokenEntity->setUser($result);
+        $tokenEntity->setToken($token)
+                    ->setUser($result);
 
         $manager->persist($tokenEntity);
         $manager->persist($result);
         $manager->flush();
 
 
-        // On génère le lien d'activation avec le token avec la fonction generateUrl
+        // generation of the validation link with token sent by email
         $activationLink = $this->generateUrl('app_security_activation', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        //J'injecte mon service d'envoi de mail et j'appel mon objet mail
         $email = (new TemplatedEmail())
             ->from('webmaster@scriptorium.com')
             ->to($result->getEmail())
@@ -94,52 +101,59 @@ class SecurityController extends AbstractController
 
         return $this->json(
             ["confirmation" => "Le compte à bien été créé et un email de validation envoyé."],
-            201,
+            Response::HTTP_CREATED,
             []
         );
     }
 
     /**
-     * Activation du compte de l'utilisateur en utilisant le token envoyé par email
      * @Route("/activation/{token}", name="app_security_activation", methods="GET")
-     * @return Response
+     * activation of user account by token verification sent by email
+     *      
+     * @param string $token
+     * @param EntityManagerInterface $manager 
+     * 
+     * @return JsonResponse
      */
-    public function activation($token, EntityManagerInterface $manager): Response
+    public function activation($token, EntityManagerInterface $manager): JsonResponse
     {
-        //On cherche dans la BDD le token similaire à celui recupéré dans le lien
         $tokenEntity = $manager->getRepository(Token::class)->findOneBy(['token' => $token]);
 
-        //Si aucun token ne correspond alors
         if (!$tokenEntity) {
             return $this->json(
                 ["erreur" => "Le token d'activation est invalide ou le compte est déja activé"],
-                400,
+                Response::HTTP_BAD_REQUEST,
                 []
             );
         }
 
-        //Si le token correspond on recup le user et on passe isVerified à true
         $actualUser = $tokenEntity->getUser();
         $actualUser->setIsVerified(true);
 
-        //On supprime ensuite le token de la base de données
         $manager->remove($tokenEntity);
         $manager->flush();
 
         return $this->json(
             ["confirmation" => "Le compte à bien été activé."],
-            201,
+            Response::HTTP_CREATED,
             []
         );
     }
 
     /**
-     * Renvoi du lien d'activation du compte
      * @Route("/api/resend-activation", name="app_resend_activation_link", methods="GET")
+     * Resend activation link for user account validation
+     * 
+     * @param EntityManagerInterface $manager
+     * @param MailerInterface $mailer
+     * @param TokenStorageInterface $tokenInterface
+     * 
      * @return Response
      */
-    public function resendActivation(EntityManagerInterface $manager, MailerInterface $mailer, TokenStorageInterface $tokenInterface): Response
+    public function resendActivation(EntityManagerInterface $manager, MailerInterface $mailer, TokenStorageInterface $tokenInterface, RateLimiterService $rateLimiter, Request $request): Response
     {
+        $rateLimiter->limit($request);
+
         $userToken = $tokenInterface->getToken();
 
         $user = $userToken->getUser();
@@ -149,15 +163,13 @@ class SecurityController extends AbstractController
         if ($mailToken == null) {
             return $this->json(
                 ["erreur" => "Aucun token pour ce compte"],
-                404,
+                Response::HTTP_NOT_FOUND,
                 []
             );
         }
 
-        //On recréé un lien avec le token de l'utilisateur
         $activationLink = $this->generateUrl('app_security_activation', ['token' => $mailToken->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        //On lui renvoi le mail
         $email = (new TemplatedEmail())
             ->from('webmaster@scriptorium.com')
             ->to($mailToken->getUser()->getEmail())
@@ -174,13 +186,18 @@ class SecurityController extends AbstractController
 
         return $this->json(
             ["success" => "Le mail de validation à bien été renvoyé"],
-            201,
+            Response::HTTP_OK,
             []
         );
     }
 
     /**
      * @Route("/login", name="login", methods={"GET", "POST"})
+     * Login Form to easyadmin
+     * 
+     * @param AuthenticationUtils $authenticationUtils
+     * 
+     * @return Response
      */
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
@@ -188,7 +205,6 @@ class SecurityController extends AbstractController
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('@EasyAdmin/page/login.html.twig', [
-            // parameters usually defined in Symfony login forms
             'error' => $error,
             'last_username' => $lastUsername
         ]);
@@ -196,8 +212,17 @@ class SecurityController extends AbstractController
 
     /**
      * @Route("/reset-password", name="app_reset_password", methods="POST")
+     * Route for send a mail to reset user password
+     * 
+     * @param Request $request
+     * @param UserRepository $userRepository
+     * @param EntityManagerInterface $manager
+     * @param MailerInterface $mailer
+     * @param TokenGeneratorInterface $tokenGenerator
+     * 
+     * @return JsonResponse
      */
-    public function ResetMailSend(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator): Response
+    public function ResetMailSend(Request $request, UserRepository $userRepository, EntityManagerInterface $manager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator): JsonResponse
     {
         $email = $request->getContent();
         $data = json_decode($email, true);
@@ -207,7 +232,7 @@ class SecurityController extends AbstractController
         if (!$user) {
             return $this->json(
                 ["erreur" => "Aucun utilisateur avec cette adresse mail"],
-                403,
+                Response::HTTP_NOT_FOUND,
                 []
             );
         }
@@ -215,12 +240,12 @@ class SecurityController extends AbstractController
         $token = $tokenGenerator->generateToken();
 
         $tokenEntity = new Token();
-        $tokenEntity->setToken($token);
-        $tokenEntity->setUser($user);
+        $tokenEntity->setToken($token)
+                    ->setUser($user);
 
-        $entityManager->persist($tokenEntity);
-        $entityManager->persist($user);
-        $entityManager->flush();
+        $manager->persist($tokenEntity);
+        $manager->persist($user);
+        $manager->flush();
 
         $activationLink = $this->generateUrl('app_reset_password_form', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
 
@@ -240,40 +265,38 @@ class SecurityController extends AbstractController
 
         return $this->json(
             ["success" => "Le mail de réinitialisation à bien été renvoyé"],
-            201,
+            Response::HTTP_CREATED,
             []
         );
     }
 
-
     /**
      * @Route("/reset-password/{token}", name="app_reset_password_form", methods={"GET", "POST"})
+     * Display the password reset form and reset password from validation email token
+     * 
+     * @param Request $request
+     * @param TokenRepository $tokenRepository
+     * @param EntityManagerInterface $manager
+     * 
+     * @return Response
      */
-    public function PasswordUpdate(Request $request, UserPasswordHasherInterface $passwordHasher, UserRepository $userRepository, TokenRepository $tokenRepository, EntityManagerInterface $manager)
+    public function PasswordUpdate($token, Request $request, TokenRepository $tokenRepository, EntityManagerInterface $manager): Response
     {
-        $token = $request->get('token');
-        $email = $request->getContent();
-        $data = json_decode($email, true);
         $tokenEntity = $tokenRepository->findOneBy(['token' => $token]);
-        $user = $tokenRepository->findOneBy(['token' => $token])->getUser();
 
-        $form = $this->createForm(ResetPasswordType::class);
+        $user = $tokenEntity->getUser();
+
+        $form = $this->createForm(ResetPasswordType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($form->get('password')->getData() !== null) {
-                // avant de sauvegarder, on hash le mot de passe
-                $hashedPassword = $passwordHasher->hashPassword($user, $form->get('password')->getData());
-
-                // on le met à jour dans le User
-                $user->setPassword($hashedPassword);
-                $manager->remove($tokenEntity);
-            }
-            // sinon, le mot passe d'origine est conservé
-            $userRepository->add($user, true);
+            $manager->remove($tokenEntity);
+            
+            $manager->flush();
 
             return $this->redirectToRoute('app_reset_password_success');
         }
+
         return $this->renderForm('/forms/reset_password.html.twig', [
             'form' => $form,
             'user' => $user
@@ -282,10 +305,12 @@ class SecurityController extends AbstractController
 
     /**
      * @Route("/reset-password-success/", name="app_reset_password_success", methods="GET")
+     * Redirection to user login page
+     * 
+     * @return Response
      */
-    public function ResetSuccess()
+    public function ResetSuccess(): Response
     {
-        //! faire un return vers une la page de connexion front dans le twig ci dessous lorsque les serveurs seront deployés
 
         return $this->render('/forms/reset_password_success.html.twig');
     }

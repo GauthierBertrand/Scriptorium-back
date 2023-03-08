@@ -16,3 +16,7 @@ framework:
         policy: 'fixed_window'
         limit: 5
         interval: '15 minutes'
+      resendActivation_api:
+        policy: 'fixed_window'
+        limit: 5
+        interval: '24 hours'

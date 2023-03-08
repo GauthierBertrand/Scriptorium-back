@@ -2,9 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\User;
 use App\Entity\Sheet;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @extends ServiceEntityRepository<Sheet>
@@ -39,6 +40,9 @@ class SheetRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * @param User $user 
+     */
     public function getSheetsByUser($user) 
     {
         $manager = $this->getEntityManager();
@@ -52,17 +56,19 @@ class SheetRepository extends ServiceEntityRepository
         return $query->getResult();
     }
 
+    /**
+     * @param int $id
+     */
     public function getSavedSheet($id)
     {
         $manager = $this->getEntityManager();
-    //SQL query
-    $dqlQuery = $manager->createQuery("SELECT sheet, classe, ways, way_abilities, racialAbility  FROM App\Entity\Sheet sheet JOIN sheet.classe classe JOIN sheet.way_abilities way_abilities JOIN classe.ways ways JOIN sheet.racialAbility racialAbility WHERE sheet.id = :id");
 
-    $dqlQuery->setParameter("id", $id);
+        $dqlQuery = $manager->createQuery("SELECT sheet, classe, ways, way_abilities, racialAbility  FROM App\Entity\Sheet sheet JOIN sheet.classe classe JOIN sheet.way_abilities way_abilities JOIN classe.ways ways JOIN sheet.racialAbility racialAbility WHERE sheet.id = :id");
 
+        $dqlQuery->setParameter("id", $id);
 
-    return $dqlQuery->getSingleResult();
-}
+        return $dqlQuery->getSingleResult();
+    }
 
 
 //    /**

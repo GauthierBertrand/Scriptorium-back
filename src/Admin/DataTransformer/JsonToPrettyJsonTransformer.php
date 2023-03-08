@@ -4,6 +4,9 @@ namespace App\Admin\DataTransformer;
 
 use Symfony\Component\Form\DataTransformerInterface;
 
+/**
+ * Formatting a json for easyadmin use
+ */
 class JsonToPrettyJsonTransformer implements DataTransformerInterface
 {
     public function transform($value)

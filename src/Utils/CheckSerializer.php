@@ -12,16 +12,20 @@ class CheckSerializer {
      */
     private $serializer;
 
+    /**
+     * @param SerializerInterface $serializer
+     */
     public function __construct(SerializerInterface $serializer)
     {
         $this->serializer = $serializer;
     }
 
     /**
-     * Check la déserialisation d'une entité donnée
+     * Serialize and catch any error during process
      *
      * @param string $jsonContent
      * @param string $entityFqcn
+     * 
      * @return Entity|string
      */
     public function serializeValidation(string $jsonContent, $entityFqcn, $options = [])
