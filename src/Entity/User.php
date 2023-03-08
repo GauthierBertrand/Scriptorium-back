@@ -355,16 +355,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getPlainTextPassword() 
     {
-        return $this->getPassword();
+        if (empty($this->plainTextPassword)) {
+            $this->plainTextPassword = "";
+        }
+    
+        return $this->plainTextPassword;
     }
 
     public function setPlainTextPassword($plainTextPassword) 
     {
-        if (empty($plainTextPassword)) {
-            return $this;
-        }
-
-        $this->setPassword($plainTextPassword);
+        $this->plainTextPassword = $plainTextPassword;
 
         return $this;
     }
@@ -375,19 +375,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public static function validate($object, ExecutionContextInterface $context, $payload)
     {
-        if ($object->getId() === null) {
-            return; 
-        }
-
-        $password = $object->getPassword();
-
+        $password = $object->getPlainTextPassword();
         if (strlen($password) > 0) {
             if (preg_match("/^(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?=.*\d).{8,64}$/", $password) === 0) {
 
                 $context->buildViolation("Le password doit avoir au moins 8 caractères dont un caractère spécial, un chiffre et une majuscule")
                     ->atPath("plainTextPassword")
                     ->addViolation();
-            }
+            } else {
+                $object->setPassword($password);
+            }   
         }
     }
 }

@@ -181,6 +181,14 @@ class GameMasterController extends AbstractController
             );
         }
 
+        if ($group->getPlayers()->contains($user)) {
+            return $this->json(
+                ["error" => "Cet utilisateur fait déjà partie de ce groupe."],
+                Response::HTTP_NOT_ACCEPTABLE,
+                []
+            );
+        }
+
         $group->addPlayer($user);
 
         $manager->flush();
