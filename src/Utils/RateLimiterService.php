@@ -22,13 +22,15 @@ class RateLimiterService
     private $generatePdfApiLimiter;
     private $modifyPasswordApiLimiter;
     private $resendActivationApiLimiter;
+    private $resetMailSendApiLimiter;
 
-    public function __construct(RateLimiterFactory $inscriptionApiLimiter, RateLimiterFactory $generatePdfApiLimiter, RateLimiterFactory $modifyPasswordApiLimiter, RateLimiterFactory $resendActivationApiLimiter)
+    public function __construct(RateLimiterFactory $resetMailSendApiLimiter, RateLimiterFactory $inscriptionApiLimiter, RateLimiterFactory $generatePdfApiLimiter, RateLimiterFactory $modifyPasswordApiLimiter, RateLimiterFactory $resendActivationApiLimiter)
     {
         $this->inscriptionApiLimiter = $inscriptionApiLimiter;
         $this->generatePdfApiLimiter = $generatePdfApiLimiter;
         $this->modifyPasswordApiLimiter = $modifyPasswordApiLimiter;
         $this->resendActivationApiLimiter = $resendActivationApiLimiter;
+        $this->resetMailSendApiLimiter = $resetMailSendApiLimiter;
     }
     
     /**

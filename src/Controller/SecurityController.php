@@ -222,8 +222,10 @@ class SecurityController extends AbstractController
      * 
      * @return JsonResponse
      */
-    public function ResetMailSend(Request $request, UserRepository $userRepository, EntityManagerInterface $manager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator): JsonResponse
+    public function resetMailSend(Request $request, UserRepository $userRepository, EntityManagerInterface $manager, RateLimiterService $rateLimiter, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator): JsonResponse
     {
+        $rateLimiter->limit($request);
+
         $email = $request->getContent();
         $data = json_decode($email, true);
         $email = $data['email'];
