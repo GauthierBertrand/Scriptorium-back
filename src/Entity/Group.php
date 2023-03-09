@@ -89,7 +89,7 @@ class Group
     {
         if (!$this->players->contains($player)) {
             $this->players[] = $player;
-        }
+        } 
 
         return $this;
     }
@@ -160,6 +160,6 @@ class Group
             $context->buildViolation("Le GM ne peut pas faire partie de son propre groupe")
                 ->atPath("players")
                 ->addViolation();
-        }
+        } 
     }
 }
