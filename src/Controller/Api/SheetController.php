@@ -10,7 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
@@ -92,6 +91,14 @@ class SheetController extends AbstractController
     {
         $token = $tokenStorage->getToken();
         $user = $token->getUser();
+
+        if (!$user->getIsVerified()) {
+            return $this->json(
+                ["error" => "L'utilisateur doit avoir un compte valide."],
+                Response::HTTP_UNAUTHORIZED,
+                []
+            );
+        }
 
         $cache = new FilesystemAdapter;
         $cacheKey = 'pdf_content_' . $request->getSession()->getId();

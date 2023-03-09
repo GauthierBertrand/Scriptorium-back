@@ -34,6 +34,14 @@ class GameMasterController extends AbstractController
     {
         $user = $tokenStorage->getToken()->getUser();
 
+        if (!$user->getIsVerified()) {
+            return $this->json(
+                ["error" => "L'utilisateur doit avoir un compte valide."],
+                Response::HTTP_UNAUTHORIZED,
+                []
+            );
+        }
+
         $roles = $user->getRoles();
 
         if (in_array("ROLE_GAME_MASTER", $roles)) {
@@ -147,6 +155,15 @@ class GameMasterController extends AbstractController
     public function addToGroup(EntityManagerInterface $manager, Request $request, ValidatorInterface $validator, TokenStorageInterface $tokenStorage, GroupRepository $groupRepository): JsonResponse
     {
         $user = $tokenStorage->getToken()->getUser();
+
+        if (!$user->getIsVerified()) {
+            return $this->json(
+                ["error" => "L'utilisateur doit avoir un compte valide."],
+                Response::HTTP_UNAUTHORIZED,
+                []
+            );
+        }
+
         $jsonContent = json_decode($request->getContent(), true);
   
         if (!isset($jsonContent["code_register"]) OR gettype($jsonContent["code_register"]) !== "string") {
