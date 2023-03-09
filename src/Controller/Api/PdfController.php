@@ -101,7 +101,7 @@ class PdfController extends AbstractController
        ]);
 
        return new PdfResponse(
-        $knpSnappyPdf->getOutputFromHtml($html),
+        $knpSnappyPdf->getOutputFromHtml($html->getContent()),
         'file.pdf'
     );
    }
