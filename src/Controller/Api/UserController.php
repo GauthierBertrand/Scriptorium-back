@@ -2,97 +2,105 @@
 
 namespace App\Controller\Api;
 
+use App\Utils\RateLimiterService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
- * @Route("/api/user")
+ * @Route("/api/users")
  */
 class UserController extends AbstractController
 {
     /**
-     * Permet la modification du mot de passe d'un utilisateur recuperé via son token JWT
      * @Route("/password", name="app_user_modify_password", methods="PATCH")
+     * Changing user password from token
+     * 
+     * @param Request $request
+     * @param TokenStorageInterface $tokenStorage
+     * @param UserPasswordHasherInterface $passwordHasher
+     * @param ValidatorInterface $validtor
+     * @param EntityManagerInterface $manager
+     * @param RateLimiterService $rateLimiter
+     * 
+     * @return JsonResponse
      */
-    public function modifyPassword(Request $request, TokenStorageInterface $tokenStorage, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator, EntityManagerInterface $manager): JsonResponse
+    public function modifyPassword(Request $request, TokenStorageInterface $tokenStorage, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator, EntityManagerInterface $manager, RateLimiterService $rateLimiter): JsonResponse
     {
-        // Decode de content Request and return an array with keys
+        $rateLimiter->limit($request);
+
         $passwords = json_decode($request->getContent(), true);
 
-        if (isset($passwords["current_password"]) OR isset($passwords["new_password"])) {
+        if (!isset($passwords["current_password"]) or !isset($passwords["new_password"])) {
             return $this->json(
-                ['error' => "Vous devez indiqué un champ 'current_password' et un champ 'new_password' dans votre requête."],
-                400,
+                ['error' => "Vous devez indiquer un champ 'current_password' et un champ 'new_password' dans votre requête."],
+                Response::HTTP_BAD_REQUEST,
                 []
             );
         }
 
-        // Recover the user associate to token
         $token = $tokenStorage->getToken();
         $user = $token->getUser();
 
         // Verify if the plaintext password given by request match with the user's password
-        // ! Error doesn't exist, don't worry for this !
         if ($passwordHasher->isPasswordValid($user, $passwords["current_password"])) {
             $user->setPassword($passwords["new_password"]);
-            
+
             $errors = $validator->validate($user);
 
             if (count($errors) > 0) {
-                // dd($error[0]);
                 $error = $errors[0];
                 $errorJson[$error->getPropertyPath()] = $error->getMessage();
 
                 return $this->json(
                     ["error" => $errorJson],
-                    400,
+                    Response::HTTP_BAD_REQUEST,
                     []
                 );
             }
 
-            // ? On hash de nouveau le password après la verification du mot de passe au clair pour utiliser sans probleme la methode isPasswordValid
-            $user->setPassword($passwordHasher->hashPassword($user, $user->getPassword()));
-
             $manager->flush();
 
             return $this->json(
-                ["confirmation" => "Password changed"],
-                201,
-                []);
+                ["confirmation" => "Mot de passe modifié"],
+                Response::HTTP_CREATED,
+                []
+            );
         }
 
         return $this->json(
-            ["invalidation" => "Invalid Password"],
-            403,
-            []    
+            ["invalidation" => "Mot de passe invalide"],
+            Response::HTTP_FORBIDDEN,
+            []
         );
     }
 
     /**
-     * Permet la suppression d'un utilisateur authentifié via son token JWT
      * @Route("/delete", name="app_user_delete", methods="DELETE")
+     * Delete user from auhtentification token
+     * 
+     * @param TokenStorageInterface $tokenStorage
+     * @param EntityManagerInterface $manager
+     * 
+     * @return JsonResponse
      */
-    public function deleteUser(TokenStorageInterface $tokenStorage, EntityManagerInterface $manager): JsonResponse 
+    public function deleteUser(TokenStorageInterface $tokenStorage, EntityManagerInterface $manager): JsonResponse
     {
         $token = $tokenStorage->getToken();
         $user = $token->getUser();
 
-        foreach($user->getSheets() as $sheet) {
-            $manager->remove($sheet);
-        }
-
         $manager->remove($user);
         $manager->flush();
-        
+
         return $this->json(
-            ["confirmation" => "User removed"],
-            200,
+            ["confirmation" => "Utilisateur supprimé"],
+            Response::HTTP_OK,
             []
         );
     }

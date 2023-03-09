@@ -3597,7 +3597,7 @@ class DataChronique {
             ],
             [
                 "Dague",
-                "(DM 1d4",
+                "(DM 1d4)",
                 [1, 4],
                 "corps à corps",
                 1,
@@ -3826,7 +3826,7 @@ class DataChronique {
             ],
             [
                 "Chemise de maille",
-                "(DEF +4",
+                "(DEF +4)",
                 null,
                 null,
                 null,
@@ -4064,7 +4064,7 @@ class DataChronique {
             ],
             [
                 "Nécromancien",
-                "Le Nécromancien est un lanceur de sorts qui s’intéresse aux forces obscures et au pouvoir de la mort. Les Nécromanciens sont généralement considérés comme maléfiques et sont peu appréciés. Interprétez-le de façon subtile afin d’en faire un personnage plutôt sombre ou désespéré, mais pas forcément /\"mauvais\" !",
+                "Le Nécromancien est un lanceur de sorts qui s’intéresse aux forces obscures et au pouvoir de la mort. Les Nécromanciens sont généralement considérés comme maléfiques et sont peu appréciés. Interprétez-le de façon subtile afin d’en faire un personnage plutôt sombre ou désespéré, mais pas forcément \"mauvais\" !",
                 4,
                 "",
                 [

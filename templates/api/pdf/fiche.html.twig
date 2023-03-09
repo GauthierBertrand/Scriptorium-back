@@ -1,67 +1,195 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Fiche personnage
+{% block title %}Chroniques oubliées
+{% endblock %}
+{% block CSS %}
+	{# {{ encore_entry_link_tags('app') }} #}
+	<style>
+		/* CSS pour la fiche de personnage */
+		bodypdf {
+			font-family: Arial, sans-serif;
+			font-size: 14px;
+		}
+
+		h1 {
+			text-align: center;
+			font-size: 28px;
+			margin: 20px 0;
+		}
+
+		.section {
+			margin-bottom: 20px;
+		}
+
+		.section-title {
+			font-size: 20px;
+			font-weight: bold;
+			margin-bottom: 10px;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			margin-bottom: 20px;
+		}
+
+		table,
+		th,
+		td {
+			border: 1px solid #ccc;
+		}
+
+		th,
+		td {
+			padding: 5px;
+			text-align: left;
+		}
+
+		.column {
+			float: left;
+			width: 50%;
+			padding: 0 20px;
+		}
+
+		.clear {
+			clear: both;
+		}
+
+
+		.portrait {
+			float: left;
+			margin-right: 20px;
+			border: 1px solid #ccc;
+			width: 150px;
+			height: 200px;
+			background-color: #fff;
+		}
+
+		.name {
+			font-size: 24px;
+			font-weight: bold;
+		}
+
+		.attribute {
+			font-weight: bold;
+		}
+
+		.capacity-section {
+			margin-top: 50px;
+		}
+	</style>
+
 {% endblock %}
 
+
 {% block body %}
-	<h1>Fiche de personnage {{pdfContent.characterName}}</h1>
+	<h1>Chroniques oubliées</h1>
 
 	<div class="section">
-		<div class="portrait"></div>
-		<div class="column">
-			<div class="name">Nom du personnage</div>
-			<table>
-				<tr>
-					<th>Niveau</th>
-					<td>1</td>
-				</tr>
-				<tr>
-					<th>Classe</th>
-					<td>Arquebusier</td>
-				</tr>
-				<tr>
-					<th>Race</th>
-					<td>Demi-elfe</td>
-				</tr>
-			</table>
-		</div>
-		<div class="clear"></div>
+		<img src="" class="portrait"></img>
+	<div class="column">
+
+		<div class="name">Nom du personnage :</div>
+
+		<div class="name">{{pdfContent.characterName}}</div>
+
+		<table>
+			<tr>
+				<th>Niveau</th>
+				<td>{{pdfContent.level}}</td>
+			</tr>
+			<tr>
+				<th>Classe</th>
+				<td>{{pdfContent.classe.name}}</td>
+			</tr>
+			<tr>
+				<th>Race</th>
+				<td>{{pdfContent.raceName}}</td>
+			</tr>
+		</table>
 	</div>
+	<div class="clear"></div>
+</div></br><table>
+<tr>
+	<td class="attribute">CAPACITES RACIALES</td>
+	<td class="attribute">{{pdfContent.racialAbility.name}}</td>
+	<td class="attribute">{{pdfContent.racialAbility.description}}</td>
+	{# <td class="attribute">{{pdfContent.racialAbility.bonus}}</td> #}
+	{# <td class="attribute">{{pdfContent.racialAbility.traits}}</td> #}
+</tr></table><div class="section">
 
-	<div class="section">
-		<div class="column">
-			<div class="section-title">Caractéristiques</div>
-			<table>
-				<tr>
-					<th>Force</th>
-					<td class="attribute">18</td>
-				</tr>
-				<tr>
-					<th>Dextérité</th>
-					<td class="attribute">14</td>
-				</tr>
-				<tr>
-					<th>Constitution</th>
-					<td class="attribute">16</td>
-				</tr>
-				<tr>
-					<th>Intelligence</th>
-					<td class="attribute">8</td>
-				</tr>
-				<tr>
-					<th>Sagesse</th>
-					<td class="attribute">12</td>
-				</tr>
-				<tr>
-					<th>Charisme</th>
-					<td class="attribute">10</td>
-				</tr>
-			</table>
-		</div>
-		<div class="column">
-			<div class="section-title">Capacités</div>
-			<table>
-				<tr>
-					<th>Instinct de survie</th>
-				{% endblock %}
+<div class="column">
+	<div class="section-title">Caractéristiques</div>
+	<table>
+		<tr>
+			<th>Force</th>
+			<td class="attribute">{{pdfContent.stats.Force}}</td>
+		</tr>
+		<tr>
+			<th>Dextérité</th>
+			<td class="attribute">{{pdfContent.stats.Dextérité}}</td>
+		</tr>
+		<tr>
+			<th>Constitution</th>
+			<td class="attribute">{{pdfContent.stats.Constitution}}</td>
+		</tr>
+		<tr>
+			<th>Intelligence</th>
+			<td class="attribute">{{pdfContent.stats.Intelligence}}</td>
+		</tr>
+		<tr>
+			<th>Sagesse</th>
+			<td class="attribute">{{pdfContent.stats.Sagesse}}</td>
+		</tr>
+		<tr>
+			<th>Charisme</th>
+			<td class="attribute">{{pdfContent.stats.Charisme}}</td>
+		</tr>
+	</table>
+</div>
 
+<div class="column">
+	<div class="section-title">Description</div>
+	<table>
+		<tr>
+			<th>Age</th>
+			<td class="attribute">{{pdfContent.age}}</td>
+		</tr>
+		<tr>
+			<th>Taille</th>
+			<td class="attribute">{{pdfContent.height}}</td>
+		</tr>
+		<tr>
+			<th>Poids</th>
+			<td class="attribute">{{pdfContent.weight}}</td>
+		</tr>
+		<tr>
+			<th>Cheveux</th>
+			<td class="attribute">{{pdfContent.hair}}</td>
+		</tr>
+		<tr>
+			<th>Description</th>
+			<td class="attribute">{{pdfContent.description}}</td>
+		</tr>
+	</table>
+</div>
+<div class="capacity-section">
+
+	<div class="section-title">Voies</div>
+
+	<table>
+		<tr>
+			{% for way in pdfContent.wayAbilities %}
+				<th>{{ way.name }}</th>
+
+			{% endfor %}
+		</tr>
+		<tr>
+			{% for way in pdfContent.wayAbilities %}
+				<td>{{ way.description }}</td>
+
+			{% endfor %}
+		</tr>
+
+	</table>
+</div>{% endblock %}

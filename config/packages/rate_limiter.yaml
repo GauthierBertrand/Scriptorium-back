@@ -1,0 +1,26 @@
+framework:
+    rate_limiter:
+      inscription_api:
+        policy: 'fixed_window'
+        limit: 5
+        interval: '15 minutes'
+      generatePdf_api:
+        policy: 'fixed_window'
+        limit: 5
+        interval: '15 minutes'
+      modifyPassword_api:
+        policy: 'fixed_window'
+        limit: 5
+        interval: '15 minutes'
+      login_api:
+        policy: 'fixed_window'
+        limit: 5
+        interval: '15 minutes'
+      resendActivation_api:
+        policy: 'fixed_window'
+        limit: 5
+        interval: '24 hours'
+      resetMailSend_api:
+        policy: 'fixed_window'
+        limit: 5
+        interval: '24 hours'

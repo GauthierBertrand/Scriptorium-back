@@ -2,15 +2,16 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use App\Repository\UserRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -22,15 +23,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * 
+     * @Groups({"group_get_information"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Assert\NotNull(
-     *  message = "Le champ email ne peut pas être null."
-     * )
      * @Assert\NotBlank(
      *  message = "Le champ email ne peut pas être vide."
      * )
@@ -48,17 +46,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
-     * @Assert\NotNull(
-     *  message = "Le champ password ne peut pas être null."
-     * )
-     * @Assert\NotBlank(
-     *  message = "Le champ password ne peut pas être vide."
-     * )
-     * @Assert\Length(
-     *  min = 2,
-     *  max = 10,
-     *  minMessage = "Le password doit être de '{{ limit }}' caractères minimum.",
-     *  maxMessage = "Le password doit être de '{{ limit }}' caractères maximum."
+     * @Assert\Regex(
+     *  pattern = "/^(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?=.*\d).{8,64}$/",
+     *  match = true,
+     *  message = "Le password doit avoir au moins 8 caractères dont un caractère spécial, un chiffre et une majuscule."
      * )
      */
     private $password;
@@ -69,11 +60,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *  message = "Le champ pseudo ne peut pas être null."
      * )
      * @Assert\Length(
-     *  min = 2,
-     *  max = 4,
+     *  min = 1,
+     *  max = 64,
      *  minMessage = "Le champ pseudo doit être de '{{ limit }}' caractères minimum.",
      *  maxMessage = "Le champ pseudo doit être de '{{ limit }}' caractères maximum."
      * )
+     * @Groups({"group_get_information"})
      */
     private $pseudo;
 
@@ -82,9 +74,37 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $sheets;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Token::class, mappedBy="user", orphanRemoval=true)
+     */
+    private $tokens;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $is_verified = false;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Group::class, mappedBy="game_master")
+     */
+    private $groups;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Group::class, mappedBy="players")
+     */
+    private $playerGroups;
+
+    /**
+     * Custom field only use by validation callback
+     */
+    private $plainTextPassword;
+
     public function __construct()
     {
         $this->sheets = new ArrayCollection();
+        $this->tokens = new ArrayCollection();
+        $this->groups = new ArrayCollection();
+        $this->playerGroups = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -216,5 +236,155 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->getPseudo();
+    }
+
+    /**
+     * @return Collection<int, Token>
+     */
+    public function getTokens(): Collection
+    {
+        return $this->tokens;
+    }
+
+    public function addToken(Token $token): self
+    {
+        if (!$this->tokens->contains($token)) {
+            $this->tokens[] = $token;
+            $token->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeToken(Token $token): self
+    {
+        if ($this->tokens->removeElement($token)) {
+            // set the owning side to null (unless already changed)
+            if ($token->getUser() === $this) {
+                $token->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get the value of is_verified
+     */ 
+    public function getIsVerified(): ?bool
+    {
+        return $this->is_verified;
+    }
+
+    /**
+     * Set the value of is_verified
+     *
+     * @return  self
+     */ 
+    public function setIsVerified(bool $is_verified): self
+    {
+        $this->is_verified = $is_verified;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Group>
+     */
+    public function getGroups(): Collection
+    {
+        return $this->groups;
+    }
+
+    public function addGroup(Group $group): self
+    {
+        if (!$this->groups->contains($group)) {
+            $this->groups[] = $group;
+            $group->setGameMaster($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGroup(Group $group): self
+    {
+        if ($this->groups->removeElement($group)) {
+            // set the owning side to null (unless already changed)
+            if ($group->getGameMaster() === $this) {
+                $group->setGameMaster(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Group>
+     */
+    public function getPlayerGroups(): Collection
+    {
+        return $this->playerGroups;
+    }
+
+    public function addPlayerGroup(Group $playerGroup): self
+    {
+        if (!$this->playerGroups->contains($playerGroup)) {
+            $this->playerGroups[] = $playerGroup;
+            $playerGroup->addPlayer($this);
+        }
+
+        return $this;
+    }
+
+    public function removePlayerGroup(Group $playerGroup): self
+    {
+        if ($this->playerGroups->removeElement($playerGroup)) {
+            $playerGroup->removePlayer($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Custom getter and setter used by easy admin
+     */
+    public function getPlainTextPassword() 
+    {
+        if (empty($this->plainTextPassword)) {
+            $this->plainTextPassword = "";
+        }
+    
+        return $this->plainTextPassword;
+    }
+
+    public function setPlainTextPassword($plainTextPassword) 
+    {
+        $this->plainTextPassword = $plainTextPassword;
+
+        return $this;
+    }
+
+    /**
+     * @Assert\Callback()
+     * Allows only to edit in easy admin to have empty password OR valid password
+     */
+    public static function validate($object, ExecutionContextInterface $context, $payload)
+    {
+        $password = $object->getPlainTextPassword();
+        if (strlen($password) > 0) {
+            if (preg_match("/^(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?=.*\d).{8,64}$/", $password) === 0) {
+
+                $context->buildViolation("Le password doit avoir au moins 8 caractères dont un caractère spécial, un chiffre et une majuscule")
+                    ->atPath("plainTextPassword")
+                    ->addViolation();
+            } else {
+                $object->setPassword($password);
+            }   
+        }
     }
 }

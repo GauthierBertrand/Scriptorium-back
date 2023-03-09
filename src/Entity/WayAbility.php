@@ -17,6 +17,7 @@ class WayAbility
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"ways_get_collection"})
      */
     private $id;
 
@@ -214,5 +215,10 @@ class WayAbility
         $this->level = $level;
 
         return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->getName();
     }
 }

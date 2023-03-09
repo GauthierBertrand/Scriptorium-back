@@ -39,7 +39,12 @@ class ClasseRepository extends ServiceEntityRepository
         }
     }
 
-    public function getClassesAndEquipments() 
+    /**
+     * Return a more readable custom array 
+     * 
+     * @return array
+     */
+    public function getClassesAndEquipments(): array
     {
         $manager = $this->getEntityManager();
 

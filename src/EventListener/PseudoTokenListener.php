@@ -3,11 +3,10 @@
 namespace App\EventListener;
 
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTCreatedEvent;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class PseudoTokenListener {
     /**
-     * Récupère l'event lié à la création d'un token JWT pour ajouter le pseudo de l'utilisateur dans sa création
+     * Take the event linked to the creation of a JWT token to add user's nickname in his creation
      *
      * @param JWTCreatedEvent $event
      * @return void

@@ -39,13 +39,18 @@ class WayRepository extends ServiceEntityRepository
         }
     }
 
-    public function getWaysAndWayAbilities() 
+    /**
+     * @param int $id
+     */
+    public function getWaysAndWayAbilities($id) 
     {
         $manager = $this->getEntityManager();
 
         $query = $manager->createQuery(
-            "SELECT way, abilities FROM App\Entity\Way way JOIN way.wayAbilities abilities"
+            "SELECT way, abilities FROM App\Entity\Way way JOIN way.wayAbilities abilities JOIN way.classe classe WHERE classe.id = :id"
         );
+
+        $query->setParameter("id", $id);
 
         return $query->getResult();
     }

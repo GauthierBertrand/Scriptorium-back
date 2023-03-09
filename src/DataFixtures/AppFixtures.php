@@ -3,31 +3,31 @@ namespace App\DataFixtures;
 
 use App\Entity\Classe;
 use App\Entity\ClasseEquipment;
-use App\Entity\ClasseStat;
 use App\Entity\Equipment;
 use App\Entity\Race;
 use App\Entity\RacialAbility;
 use App\Entity\Religion;
 use App\Entity\Stat;
 use App\Entity\Way;
+use App\Entity\User;
 use App\Entity\WayAbility;
 use App\Utils\DataChronique;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
     private $datas;
+    private $hasher;
 
-    public function __construct(DataChronique $dataChronique) {
+    public function __construct(DataChronique $dataChronique, UserPasswordHasherInterface $passwordHasher) {
         $this->datas = $dataChronique;
+        $this->hasher = $passwordHasher;
     }
 
     public function load(ObjectManager $manager): void
     {
-        // $product = new Product();
-        // $manager->persist($product);
-
         foreach($this->datas->races as $race) {
             $raceEntity = new Race();
 
@@ -174,7 +174,6 @@ class AppFixtures extends Fixture
 
             $manager->persist($religionEntity);
         }
-
         $manager->flush();
     }
 }
