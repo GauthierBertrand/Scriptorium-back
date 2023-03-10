@@ -31,7 +31,7 @@ class PdfController extends AbstractController
      */
     public function generatePdf(PdfService $pdf, CheckSerializer $checker, RateLimiterService $rateLimiter, Request $request, ValidatorInterface $validator)
     {
-        $rateLimiter->limit($request);
+        // $rateLimiter->limit($request);
         
         $cache = new FilesystemAdapter();
        
@@ -79,9 +79,6 @@ class PdfController extends AbstractController
         $response->setContent($output);
         $response->setStatusCode(Response::HTTP_OK);
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization');
 
         return $response;
     }
@@ -112,10 +109,7 @@ class PdfController extends AbstractController
         $response->setContent($output);
         $response->setStatusCode(Response::HTTP_OK);
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization');
-
+    
         return $response;
    }
 }
