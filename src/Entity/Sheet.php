@@ -132,9 +132,6 @@ class Sheet
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="sheets")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"sheet_get_item"})
-     * @Assert\NotNull(
-     *  message = "La fiche doit obligatoirement être relié à un utilisateur."
-     * )
      */
     private $user;
 
