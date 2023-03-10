@@ -17,8 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class PdfController extends AbstractController
 {
-    
-    /***
+    /**
      * @Route("/api/generator", name="app_api_pdf", methods="POST")
      * Method to generate a pdf file from datas given by an anonymous user and saving datas in cache
      * 
