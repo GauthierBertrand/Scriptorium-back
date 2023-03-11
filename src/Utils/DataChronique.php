@@ -168,9 +168,70 @@ class DataChronique {
 
         $this->religions = [
             [
-                "",
-                "",
+                "Pazaris",
+                "Déesse de la magie et de l'obsession",
+                "Elle fait partie du panthéon du Scriptorium. Elle est connu pour maitriser l'art de la métamorphose au point qu'elle peut prendre l'apparence de n'importe qui, même des dieux ! Ses adeptes lui rendent hommage plusieurs fois dans l'année en se déguisant en personnage illustre et organisent même des concours. Ils ont aussi facheuse tendance, à l'instar de leur déesse, de ne pas pouvoir décrocher d'un problème tant que celui-ci n'est pas résolu.",
+                1
+            ],
+            [
+                "Nürhedyne",
+                "Dieu de la patience et de la sagesse",
+                "Il fait partie du panthéon du Scriptorium. Véritable artbire des débats céleste du Scriptorium, il veille à ce que le panthéon communique pour permettre au Scriptorium de perdurer. Il n'est pas rare de voir une représentation de Nürhedyne dans les salles de conseil ou dans les tribunaux. Ses adeptes lui rendent hommage en établissant periodiquement des moments de parole permettant à chacun de raconter ce qu'il a fait durant sa journée. Il est aussi connu pour sa filouterie lors des parties de jeux.",
+                1
+            ],
+            [
+                "Denision et Bërtrhan",
+                "Dieux de la forge et des routes",
+                "Ils font parti du panthéon du Scriptorium. Aussi connu comme les Dieux chauves, ils sont responsable de la construction des outils qui ont permi au Scriptorium de voir le jour. Ils sont aussi les batisseurs des routes qu'emprunteront un jour les croyants pour rejoindre le Scriptorium, et celles qui communiquent entre les differents temples celestes. Ses adeptes leur rendent hommage en se rasant la tête. En général, ce sont surtout les personnes d'un certain âge qui choissent d'emprunter la voie des Batisseurs.",
+                1
+            ],
+            [
+                "Juliö",
+                "Dieu de l'architecture et de la connaissance",
+                "Il fait partie du panthéon du Scriptorium. C'est le concepteur du Scriptorium. Dans des temps réculés, il a fait appel à des êtres divins qui aujourd'hui compose le panthéon. Avec leur habileté, la bibliothèque céleste a permi de diffuser la connaissance sur le monde. Des rumeurs circulents dans certains temple, comme quoi Juliö serait un dieu tyrannique imposant sa volonté à coup de masse divine. Ses adeptes pour lui rendent hommage, rappel à chaque être que le Scriptorium n'aurait pas vu le jour sans le reste du panthéon et conseil de faire une prière pour chacun d'eux au moins une fois par semaine.",
                 0
+            ],
+            [
+                "Floralys",
+                "Déesse des arts",
+                "Elle fait partie du panthéon du Scriptorium. Elle est la compagne de Nürhedyne. C'est elle, avec l'aide de son compagnon, qui a conçu et peint les vitraux légendaires du Scriptorium. Ils seraient tellement beaux, que les dieux des autres plans en seraient jaloux. Un regard dans leur direction suffit à convertir n'importe quelle personne. Ses adeptes pour lui rendent hommage encourage tout ce qui a attrait à l'art et se spécialise dans la confection de vitrail.",
+                1
+            ],
+            [
+                "Mortulys",
+                "Dieu du crime et des tabous",
+                "C'est l'un des dieux les plus noirs qui existe. On raconte que la seul prononciation de son nom suffirait à vous porter le mauvais oeil. Humain, il fut intronisé dans le cercle divin en tuant Vykos. Ce sont les chefs de guerre, les chevaliers noirs et les sorciers qui lui rendent hommage. Mortulys aurait une descendance sur le plan terrestre. qui serait responsable de plusieurs guerres civiles ou massacre.",
+                0
+            ],
+            [
+                "Norcia",
+                "Déesse de la douleur et des vices",
+                "Elle a contribué à la chute de Vykos en le charmant puis pour lui avoir arraché un de ses yeux durant son sommeil. Elle est la créatrice d'Avalon, le portail nécrotique menant aux plans des Enfers. C'est une ancienne sorcière, et c'est elle qui détiendrait le Demononicon. Celui-ci serait protéger dans le couloir même d'Avalon dont l'entrée est sans cesse surveillé par l'Oeil, une machine infernal.",
+                0
+            ],
+            [
+                "Viel",
+                "Dieu du mensonge et des maladies",
+                "Il est responsable de la mort de Vykos. Il faisait déjà partie du cercle divin mais il a décidé de renverser l'ancien dieu de la Mort pour devenir une des representation de la mort. Il aurait menti au dieu Soleil, le réveillant plus tot que d'habitude. Il aurait lever le Soleil aveuglant l'unique Oeil de Vykos permettant à Mortulys de l'eventrer et le jeter dans les fleuves mortuaires.",
+                0
+            ],
+            [
+                "Vykos",
+                "Dieu des victimes",
+                "Ancien dieu de la Mort, il fut déchu de son titre par Paranthir lui-même pour ne pas avoir su garder le poste qui lui avait jadis confié. En punition, il devra à jamais receuillir les victimes des trois Meurtriers responsable des morts, devenu beaucoup plus atroce. Par chance, il ne peut plus voir les effets de sa déchéance sur les victimes mais le seul son qu'il peut aujourd'hui entendre sont les plaintes des ames en peine.",
+                1
+            ],
+            [
+                "Paranthir",
+                "Dieu suprême",
+                "C'est le roi des dieux. C'est à la base un dieu guerrier qui se serait battu contre les géants et les éléments. Encore aujourd'hui Paranthir préfère partir en guerre contre d'autres plans plutot que de présider le panthéon actuelle, ce qui laisse la possibilité aux autres dieux de laisser libre court à leur envie personnelle. Il a confié à son neveau le soin de lever l'astre Solaire chaque jour et à son petit frêre la surveillance du royaumes des Morts. C'est lui qui a puni son neveu et Vykos en revenant d'une campagne. Aujourd'hui Epyrion serait obligé de lever l'astre solaire sans son armure, le carbonisant chaque jour.",
+                0
+            ],
+            [
+                "Epyrion",
+                "Dieu de la lumière et de la guerison",
+                "Viel, par peur de ce que pourrait devenir Epyrion, aurait empoisonner le nourisson alors qu'il etait encore dans le ventre de sa mère. Néanmoins il fut béni par le Soleil lui-même lui donnant une vitalité suprême. Epyrion étant très innocent, il fut facilement dupé par Viel et par sa faute Vykos fut tué. En pénitance, il est obligé de lever l'astre Solaire sans son armure, le carbonisant chaque jour. Comme il ne peut mourir autrement que par la main de Paranthir lui-même il devra supporter cela à jamais. Ses adeptes sont en général des medecins.",
+                1
             ]
         ];
 
