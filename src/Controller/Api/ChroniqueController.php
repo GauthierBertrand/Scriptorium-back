@@ -21,16 +21,6 @@ use Symfony\Contracts\Cache\ItemInterface;
 class ChroniqueController extends AbstractController
 {
     /**
-     * @var FilesystemAdapter $cache
-     */
-    private $cache;
-
-    public function __construct()
-    {
-        $this->cache = new FilesystemAdapter();
-    }
-
-    /**
      * @Route("/classes", name="classes_get_collection", methods={"GET"})
      * Get all classes for the classes choice page with cache gestion
      * 
