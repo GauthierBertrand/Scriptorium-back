@@ -169,8 +169,9 @@ class AppFixtures extends Fixture
             $religionEntity = new Religion();
 
             $religionEntity->setName($religion[0])
-            ->setDescription($religion[1])
-            ->setAlignment($religion[2]);
+            ->setTitle($religion[1])
+            ->setDescription($religion[2])
+            ->setAlignment($religion[3]);
 
             $manager->persist($religionEntity);
         }
