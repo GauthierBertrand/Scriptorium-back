@@ -40,16 +40,13 @@ class ChroniqueController extends AbstractController
      */
     public function getClasses(ClasseRepository $classeRepository): JsonResponse
     {
-        $classes = $this->cache->get("classes", function(ItemInterface $item) use ($classeRepository) {
-            $item->expiresAfter(3600);
-
-            return $classeRepository->getClassesAndEquipments();
-        });
+        $classes = $classeRepository->getClassesAndEquipments();
+        
         return $this->json(
             ['classes' => $classes],
             Response::HTTP_OK,
             []
-        );
+        )->setSharedMaxAge(3600);
     }
 
     /**
@@ -62,18 +59,14 @@ class ChroniqueController extends AbstractController
      */
     public function getRaces(RaceRepository $raceRepository): JsonResponse
     {
-        $races = $this->cache->get("races", function(ItemInterface $item) use ($raceRepository) {
-            $item->expiresAfter(3600);
-
-            return $raceRepository->getRacesAndRacialAbilities();
-        });
+        $races = $raceRepository->getRacesAndRacialAbilities();
         
         return $this->json(
             ['races' => $races],
             Response::HTTP_OK,
             [],
             ['groups' => 'races_get_collection']
-        );
+        )->setSharedMaxAge(3600);
     }
 
     /**
@@ -107,18 +100,14 @@ class ChroniqueController extends AbstractController
      */
     public function getStats(StatRepository $statRepository): JsonResponse
     {
-        $stats = $this->cache->get("stats", function(ItemInterface $item) use ($statRepository) {
-            $item->expiresAfter(3600);
-
-            return $statRepository->findAll();
-        });
+        $stats = $statRepository->findAll();
 
         return $this->json(
             ['stats' => $stats],
             Response::HTTP_OK,
             [],
             ['groups' => 'stats_get_collection']
-        );
+        )->setSharedMaxAge(3600);
     }
 
     /**
@@ -131,17 +120,13 @@ class ChroniqueController extends AbstractController
      */
     public function getReligions(ReligionRepository $religionRepository): JsonResponse
     {
-        $religions = $this->cache->get("religions", function(ItemInterface $item) use ($religionRepository) {
-            $item->expiresAfter(3600);
-
-            return $religionRepository->findAll();
-        });
+        $religions = $religionRepository->findAll();
 
         return $this->json(
             ['religions' => $religions],
             Response::HTTP_OK,
             [],
             ['groups' => 'religions_get_collection']
-        );
+        )->setSharedMaxAge(3600);
     }
 }
