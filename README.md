@@ -39,7 +39,6 @@ bin/console lexik:jwt:generate-keypair
 
 ### rateLimiter
 
-To initialize the pdf generation service, download and install the binary at <https://wkhtmltopdf.org/downloads.html>
 
 #### Cron
 
